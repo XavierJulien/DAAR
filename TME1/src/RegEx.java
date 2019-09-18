@@ -42,7 +42,11 @@ public class RegEx {
       try {
         RegExTree ret = parse();
         System.out.println("  >> Tree result: "+ret.toString()+".");
+        /////////////////////////////////// a débugger sur l'appel de getAutomate////////////////////////
+        Automate auto = Automate.getAutomate(ret);
+        System.out.println("  >> Automate result: \n"+auto.toString());
       } catch (Exception e) {
+    	  	e.printStackTrace();
         System.err.println("  >> ERROR: syntax error for regEx \""+regEx+"\".");
       }
     }
