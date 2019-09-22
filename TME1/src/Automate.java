@@ -11,8 +11,6 @@ public class Automate {
 	
 	//private RegExTree input;
 	
-	//constructeur 
-	
 	//constructeur d'un automate simple (basis)
 	public Automate(RegExTree input) {
 		this.einitial = 0;
@@ -38,6 +36,16 @@ public class Automate {
 			tab_init[i]=false;
 			tab_fin[i]=false;
 		}
+	}
+	
+	
+	public Automate(Integer[][] transitions, boolean[] tab_init, boolean[] tab_fin) {
+		this.transitions = transitions;
+		this.tab_init = tab_init;
+		this.tab_fin = tab_fin;
+		this.epsilon_transi = null;
+		this.einitial = -1;
+		this.efinal = -1;
 	}
 	
 	/* le seule endroit ou cette fonction est appelée est dans le constructeur 1 de Automate, qui lui est seulement appelé dans applyBasis
@@ -212,7 +220,7 @@ public class Automate {
 				if(transitions[i][j] != null) {
 					res += transitions[i][j];
 				}else {
-					res += "X";
+					res += ".";
 				}
 			}
 			res += "\n";
@@ -227,15 +235,26 @@ public class Automate {
 		ArrayList<Integer>[] suites = new ArrayList[256];
 		int cpt = 0;
 		boolean done = false;
-		
+		ArrayList<int[]> transi = new ArrayList<>();
+		boolean[] tab_init;
+		boolean[] tab_fin;
+		Integer[][] transitions;
+		/**
+				private Integer[][] transitions;
+		private ArrayList<ArrayList<Integer>> epsilon_transi; 
+		private boolean[] tab_init ;
+		private boolean[] tab_fin; 
+		private int einitial;
+		private int efinal;
+		**/
+		//initialisation de la procédure
+		newStates.add(new ArrayList<>());
+		newStates.get(0).add(0);
+
 		while (!done) {
-			newStates.add(new ArrayList<>());
-			if(cpt==0) {
-				newStates.get(0).add(0);
-				//ajout des etats atteignables suivant epsilon transition depuis etat 0
-				ArrayList<Integer> from0 = auto.epsilon_transi.get(0);
-				newStates.get(0).addAll(from0);
-			}
+			//ajout des etats atteignables suivant epsilon transition depuis etat cpt
+			ArrayList<Integer> epsilons = auto.epsilon_transi.get(cpt);
+			newStates.get(cpt).addAll(epsilons);
 			//exploration des états atteignables depuis newstates suivant la transition
 			for (Integer fromState : newStates.get(cpt)) {
 				for (int j=0; j<256; j++) {
@@ -245,59 +264,42 @@ public class Automate {
 							suites[j] = new ArrayList<>();
 						suites[j].add(toState);
 				}
-				//ajout des prochaines étapes d'exploration 
+				//ajout des prochaines étapes d'exploration (cad les newStates) et ajout des transitions 
+				int[] transi_uneligne = new int[256];
 				for (int j=0; j<256; j++) {
-					if (suites[j] != null)
+					if (suites[j] != null) {
 						//ajout seulement si l'état n'existe pas déjà dans les newStates
-						if (!newStates.contains(suites[j]))
+						if (!newStates.contains(suites[j])) 
 							newStates.add(suites[j]);
+						transi_uneligne[j]=newStates.indexOf(suites[j]);
+					}
 				}
+				transi.add(cpt, transi_uneligne);
 			}
 			cpt++;
 			if (cpt >= newStates.size()) //il n'y a plus d'état à explorer
 				done = true;
 		}
-		//ajout de l'état 0
-		newStates.add(new ArrayList<>());
-		newStates.get(0).add(0);
-		//ajout des epsilons transitions depuis l'état 0
-		ArrayList<Integer> from = auto.epsilon_transi.get(0);
-		newStates.get(0).addAll(from);
-		//exploration des états atteignables depuis ids(0) suivant la transition
-		for (Integer fromState : newStates.get(0)) {
+		//newStates et transi sont de la même taille normalement 
+		transitions = new Integer[transi.size()][256];
+		tab_init = new boolean[transi.size()];
+		tab_fin = new boolean[transi.size()];
+		for (int i=0; i<transi.size();i++) {
 			for (int j=0; j<256; j++) {
-				Integer toState = auto.transitions[fromState][j];
-				if (toState != null)
-					if (suites[j] == null)
-						suites[j] = new ArrayList<>();
-					suites[j].add(toState);
+				transitions[i][j] = transi.get(i)[j];
 			}
-			//ajout des prochaines étapes d'exploration
-			for (int j=0; j<256; j++) {
-				if (suites[j] != null)
-					newStates.add(suites[j]);
-			}
+			//pour les tableaux des états initial et final
+			if(newStates.get(i).contains(auto.einitial))
+				tab_init[i]=true;
+			else
+				tab_init[i]=false;
+			if(newStates.get(i).contains(auto.efinal))
+				tab_fin[i]=true;
+			else 
+				tab_fin[i]=false;
 		}
-		exploration++;
-		
-		while (exploration <= newStates.size()) { // ce qui veut dire qu'il reste encore des étapes
-			for (int i=exploration; i<newStates.size(); i++) {
-				for (Integer fromState : newStates.get(0)) {
-					for (int j=0; j<256; j++) {
-						Integer toState = auto.transitions[fromState][j];
-						if (toState != null)
-							if (suites[j] == null)
-								suites[j] = new ArrayList<>();
-							suites[j].add(toState);
-					}
-			}
-		}
-			
-		
-		
-		
-	}
-	return null;
+		Automate ret = new Automate(transitions, tab_init, tab_fin);
+		return ret;
 
 	}
 	
