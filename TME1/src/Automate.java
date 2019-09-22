@@ -183,11 +183,16 @@ public class Automate {
 		int newNb = getNbEtat2(automate)+2;
 		Automate ret = new Automate(newNb);
 		//copie des anciennes transitions
-		for (int i=1;i<newNb-2;i++) {
+		for (int i=0;i<newNb-2;i++) {
 			for (int j=0;j<256;j++) {
-				ret.transitions[i][j] = automate.transitions[i-1][j];
+				if(automate.transitions[i][j]!=null)
+					ret.transitions[i+1][j] = automate.transitions[i][j]+1;
 			}
-			ret.epsilon_transi.set(i, automate.epsilon_transi.get(i-1));
+			ArrayList<Integer> updatedArray = automate.epsilon_transi.get(i);
+			for (int k=0;k<updatedArray.size();k++) {
+				updatedArray.set(k, updatedArray.get(k)+1);
+			}
+			ret.epsilon_transi.set(i+1, updatedArray);
 		}
 		//ajout des nouveaux epsilon-transitions
 		addEpsilonTransition(ret.epsilon_transi, 0, automate.einitial);
@@ -220,13 +225,44 @@ public class Automate {
 	public Automate getDeterminisation(Automate auto) {
 		ArrayList<ArrayList<Integer>> newStates = new ArrayList<>();
 		ArrayList<Integer>[] suites = new ArrayList[256];
-		int exploration = 0;
+		int cpt = 0;
+		boolean done = false;
+		
+		while (!done) {
+			newStates.add(new ArrayList<>());
+			if(cpt==0) {
+				newStates.get(0).add(0);
+				//ajout des etats atteignables suivant epsilon transition depuis etat 0
+				ArrayList<Integer> from0 = auto.epsilon_transi.get(0);
+				newStates.get(0).addAll(from0);
+			}
+			//exploration des états atteignables depuis newstates suivant la transition
+			for (Integer fromState : newStates.get(cpt)) {
+				for (int j=0; j<256; j++) {
+					Integer toState = auto.transitions[fromState][j];
+					if (toState != null)
+						if (suites[j] == null)
+							suites[j] = new ArrayList<>();
+						suites[j].add(toState);
+				}
+				//ajout des prochaines étapes d'exploration 
+				for (int j=0; j<256; j++) {
+					if (suites[j] != null)
+						//ajout seulement si l'état n'existe pas déjà dans les newStates
+						if (!newStates.contains(suites[j]))
+							newStates.add(suites[j]);
+				}
+			}
+			cpt++;
+			if (cpt >= newStates.size()) //il n'y a plus d'état à explorer
+				done = true;
+		}
 		//ajout de l'état 0
 		newStates.add(new ArrayList<>());
 		newStates.get(0).add(0);
 		//ajout des epsilons transitions depuis l'état 0
-		ArrayList<Integer> from0 = auto.epsilon_transi.get(0);
-		newStates.get(0).addAll(from0);
+		ArrayList<Integer> from = auto.epsilon_transi.get(0);
+		newStates.get(0).addAll(from);
 		//exploration des états atteignables depuis ids(0) suivant la transition
 		for (Integer fromState : newStates.get(0)) {
 			for (int j=0; j<256; j++) {
