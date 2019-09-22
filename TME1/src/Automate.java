@@ -4,34 +4,39 @@ public class Automate {
 	
 	private Integer[][] transitions;
 	private ArrayList<ArrayList<Integer>> epsilon_transi; 
+	private boolean[] tab_init ;
+	private boolean[] tab_fin; 
 	private int einitial;
 	private int efinal;
+	
 	//private RegExTree input;
+	
+	//constructeur 
 	
 	//constructeur d'un automate simple (basis)
 	public Automate(RegExTree input) {
-		/*int nbEtat = getNbEtat(input);
-		//this.input = input;
-		this.transitions = new Integer[nbEtat][256]; 
-		this.epsilon_transi = new ArrayList<>();
-		for (int i=0;i<nbEtat;i++) {
-			epsilon_transi.add(i, new ArrayList<>());
-		}*/
-		// autant de ligne que d'état, mais une seule colonne qui contient le tableau des destinations de la epsilon transition
 		this.einitial = 0;
 		this.efinal = 1;
 		this.transitions = new Integer[2][256]; 
 		this.epsilon_transi = new ArrayList<>();
-		epsilon_transi.add(new ArrayList<>());
-		epsilon_transi.add(new ArrayList<>());
-		
+		this.tab_init = new boolean[2];
+		this.tab_fin = new boolean[2];
+		for (int i=0 ; i<2 ; i++) {
+			epsilon_transi.add(new ArrayList<>());
+			tab_fin[i]=false;
+			tab_init[i]=false;
+		}
 	}
 	
 	public Automate(int nbEtat) {
 		this.transitions = new Integer[nbEtat][256];
 		this.epsilon_transi = new ArrayList<>();
+		this.tab_init = new boolean[nbEtat];
+		this.tab_fin = new boolean[nbEtat];
 		for (int i=0;i<nbEtat;i++) {
 			epsilon_transi.add(i, new ArrayList<>());
+			tab_init[i]=false;
+			tab_fin[i]=false;
 		}
 	}
 	
@@ -60,7 +65,6 @@ public class Automate {
 
 
 	public static Automate getAutomate(RegExTree input) {
-		System.out.println("root est "+input.root);
 		switch(input.root) {
 			case RegEx.ETOILE : System.out.println("ETOILE");return applyEtoile(input.subTrees.get(0));
 			case RegEx.CONCAT : System.out.println("CONCAT");return applyConcat(input.subTrees.get(0),input.subTrees.get(1));
@@ -82,11 +86,12 @@ public class Automate {
 
 	public void setFinal(int i) {
 		efinal = i;
-		
+		tab_fin[i] = true;
 	}
 
 	public void setInitial(int i) {
 		einitial = i;
+		tab_init[i] = true;
 		
 	}
 	
@@ -104,12 +109,15 @@ public class Automate {
 		int newNb = nbG+nbD+2;
 		Automate ret = new Automate(newNb);
 		
+		ret.setInitial(0);
+		
 		//copie de l'automate gauche 
 		for (int i=0;i<nbG;i++) {
 			for (int j=0;j<256;j++) {
-				ret.transitions[i+1][j] = gauche.transitions[i][j];
+				if (gauche.transitions[i][j] != null)
+					ret.transitions[i+1][j] = gauche.transitions[i][j]+1;
 			}
-			ArrayList<Integer> updatedArray = droite.epsilon_transi.get(i);
+			ArrayList<Integer> updatedArray = gauche.epsilon_transi.get(i);
 			for (int k=0;k<updatedArray.size();k++) {
 				updatedArray.set(k, updatedArray.get(k)+1);
 			}
@@ -131,9 +139,8 @@ public class Automate {
 		addEpsilonTransition(ret.epsilon_transi, 0, droite.einitial+nbG+2);
 		addEpsilonTransition(ret.epsilon_transi, gauche.efinal+1, newNb-1);
 		addEpsilonTransition(ret.epsilon_transi, droite.efinal+nbG+2, newNb-1);
-		
-		ret.setInitial(0);
-		ret.setFinal(gauche.efinal+1);
+
+		ret.setFinal(nbG+1);
 		return ret;
 	}
 
@@ -172,7 +179,6 @@ public class Automate {
 	}
 
 	public static Automate applyEtoile(RegExTree regExTree) {
-		System.out.println("Dans applyEtoile");
 		Automate automate = getAutomate(regExTree);
 		int newNb = getNbEtat2(automate)+2;
 		Automate ret = new Automate(newNb);
@@ -209,6 +215,54 @@ public class Automate {
 		res += "etat initial : "+einitial+"\n";
 		res += "etat final : "+efinal+"\n";
 		return res;
+	}
+	
+	public Automate getDeterminisation(Automate auto) {
+		ArrayList<ArrayList<Integer>> newStates = new ArrayList<>();
+		ArrayList<Integer>[] suites = new ArrayList[256];
+		int exploration = 0;
+		//ajout de l'état 0
+		newStates.add(new ArrayList<>());
+		newStates.get(0).add(0);
+		//ajout des epsilons transitions depuis l'état 0
+		ArrayList<Integer> from0 = auto.epsilon_transi.get(0);
+		newStates.get(0).addAll(from0);
+		//exploration des états atteignables depuis ids(0) suivant la transition
+		for (Integer fromState : newStates.get(0)) {
+			for (int j=0; j<256; j++) {
+				Integer toState = auto.transitions[fromState][j];
+				if (toState != null)
+					if (suites[j] == null)
+						suites[j] = new ArrayList<>();
+					suites[j].add(toState);
+			}
+			//ajout des prochaines étapes d'exploration
+			for (int j=0; j<256; j++) {
+				if (suites[j] != null)
+					newStates.add(suites[j]);
+			}
+		}
+		exploration++;
+		
+		while (exploration <= newStates.size()) { // ce qui veut dire qu'il reste encore des étapes
+			for (int i=exploration; i<newStates.size(); i++) {
+				for (Integer fromState : newStates.get(0)) {
+					for (int j=0; j<256; j++) {
+						Integer toState = auto.transitions[fromState][j];
+						if (toState != null)
+							if (suites[j] == null)
+								suites[j] = new ArrayList<>();
+							suites[j].add(toState);
+					}
+			}
+		}
+			
+		
+		
+		
+	}
+	return null;
+
 	}
 	
 }
