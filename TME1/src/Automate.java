@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 
 public class Automate {
 	
@@ -19,11 +21,8 @@ public class Automate {
 		this.epsilon_transi = new ArrayList<>();
 		this.tab_init = new boolean[2];
 		this.tab_fin = new boolean[2];
-		for (int i=0 ; i<2 ; i++) {
-			epsilon_transi.add(new ArrayList<>());
-			tab_fin[i]=false;
-			tab_init[i]=false;
-		}
+		initializeEpsilonsInitFin(2);
+		initializeTransitions(2);
 	}
 	
 	public Automate(int nbEtat) {
@@ -31,14 +30,26 @@ public class Automate {
 		this.epsilon_transi = new ArrayList<>();
 		this.tab_init = new boolean[nbEtat];
 		this.tab_fin = new boolean[nbEtat];
-		for (int i=0;i<nbEtat;i++) {
-			epsilon_transi.add(i, new ArrayList<>());
-			tab_init[i]=false;
+		initializeEpsilonsInitFin(nbEtat);
+		initializeTransitions(nbEtat);
+	}
+	
+	private void initializeEpsilonsInitFin (int nbEtat) {
+		for (int i=0 ; i<nbEtat ; i++) {
+			epsilon_transi.add(new ArrayList<>());
 			tab_fin[i]=false;
+			tab_init[i]=false;
 		}
 	}
 	
-	
+	private void initializeTransitions(int nbEtat) {
+		for (int i=0;i<nbEtat;i++) {
+			for (int j=0;j<256;j++) {
+				transitions[i][j] = -1;
+			}
+		}
+	}
+
 	public Automate(Integer[][] transitions, boolean[] tab_init, boolean[] tab_fin) {
 		this.transitions = transitions;
 		this.tab_init = tab_init;
@@ -81,15 +92,14 @@ public class Automate {
 		}
 	}
 	
-
 	
 	public static void addEpsilonTransition(ArrayList<ArrayList<Integer>> tab, int src, int dest) {
+		//ici modification directement sur ce qui est passé en paramètre 
 		tab.get(src).add(dest);
 	}
 
 	public void addTransition(int root, int i, int j) {
 		transitions[i][root] = j;
-		
 	}
 
 	public void setFinal(int i) {
@@ -100,7 +110,6 @@ public class Automate {
 	public void setInitial(int i) {
 		einitial = i;
 		tab_init[i] = true;
-		
 	}
 	
 	public static Automate applyBasis(RegExTree input) {
@@ -122,7 +131,7 @@ public class Automate {
 		//copie de l'automate gauche 
 		for (int i=0;i<nbG;i++) {
 			for (int j=0;j<256;j++) {
-				if (gauche.transitions[i][j] != null)
+				if (gauche.transitions[i][j] != -1)
 					ret.transitions[i+1][j] = gauche.transitions[i][j]+1;
 			}
 			ArrayList<Integer> updatedArray = gauche.epsilon_transi.get(i);
@@ -134,7 +143,7 @@ public class Automate {
 		//copie de l'automate droit -> attention à prendre en compte le décalage
 		for (int i=0;i<nbD;i++) {
 			for (int j=0;j<256;j++) {
-				if (droite.transitions[i][j] != null)
+				if (droite.transitions[i][j] != -1)
 					ret.transitions[i+nbG+2][j] = droite.transitions[i][j]+nbG+2;
 			}
 			ArrayList<Integer> updatedArray = droite.epsilon_transi.get(i);
@@ -145,8 +154,8 @@ public class Automate {
 		}
 		addEpsilonTransition(ret.epsilon_transi, 0, gauche.einitial+1);
 		addEpsilonTransition(ret.epsilon_transi, 0, droite.einitial+nbG+2);
-		addEpsilonTransition(ret.epsilon_transi, gauche.efinal+1, newNb-1);
-		addEpsilonTransition(ret.epsilon_transi, droite.efinal+nbG+2, newNb-1);
+		addEpsilonTransition(ret.epsilon_transi, gauche.efinal+1, nbG+1);
+		addEpsilonTransition(ret.epsilon_transi, droite.efinal+nbG+2, nbG+1);
 
 		ret.setFinal(nbG+1);
 		return ret;
@@ -169,7 +178,7 @@ public class Automate {
 		//copie de l'automate droit -> attention à prendre en compte le décalage
 		for (int i=0;i<nbD;i++) {
 			for (int j=0;j<256;j++) {
-				if(droite.transitions[i][j]!=null)
+				if(droite.transitions[i][j]!=-1)
 					ret.transitions[i+nbG][j] = droite.transitions[i][j]+nbG;
 			}
 			ArrayList<Integer> updatedArray = droite.epsilon_transi.get(i);
@@ -193,7 +202,7 @@ public class Automate {
 		//copie des anciennes transitions
 		for (int i=0;i<newNb-2;i++) {
 			for (int j=0;j<256;j++) {
-				if(automate.transitions[i][j]!=null)
+				if(automate.transitions[i][j]!=-1)
 					ret.transitions[i+1][j] = automate.transitions[i][j]+1;
 			}
 			ArrayList<Integer> updatedArray = automate.epsilon_transi.get(i);
@@ -203,10 +212,10 @@ public class Automate {
 			ret.epsilon_transi.set(i+1, updatedArray);
 		}
 		//ajout des nouveaux epsilon-transitions
-		addEpsilonTransition(ret.epsilon_transi, 0, automate.einitial);
+		addEpsilonTransition(ret.epsilon_transi, 0, automate.einitial+1);
 		addEpsilonTransition(ret.epsilon_transi, 0, newNb-1);
-		addEpsilonTransition(ret.epsilon_transi, automate.efinal, automate.einitial);
-		addEpsilonTransition(ret.epsilon_transi, automate.efinal, newNb-1);
+		addEpsilonTransition(ret.epsilon_transi, automate.efinal+1, automate.einitial+1);
+		addEpsilonTransition(ret.epsilon_transi, automate.efinal+1, newNb-1);
 		
 		ret.setInitial(0);
 		ret.setFinal(newNb-1);
@@ -215,9 +224,22 @@ public class Automate {
 	
 	public String toString() {
 		String res = "";
+		//init & fin
+		if (einitial != -1) {
+			res += "Etat initial : "+einitial+"\n";
+			res += "Etat final : "+efinal+"\n";
+		}else{
+			res += "Etat initial | Etat final:\n";
+			for (int i=0 ; i<tab_init.length ; i++) {
+				res += i+"     " + tab_init[i]+"\t" + tab_fin[i] +" \n"; 
+			}
+		}
+		
+		//tab des transitions
+		res += "Transitions : \n";
 		for (int i=0;i<transitions.length;i++) {
 			for (int j=0;j<transitions[0].length;j++) {
-				if(transitions[i][j] != null) {
+				if(transitions[i][j] != -1) {
 					res += transitions[i][j];
 				}else {
 					res += ".";
@@ -225,33 +247,40 @@ public class Automate {
 			}
 			res += "\n";
 		}
-		res += "etat initial : "+einitial+"\n";
-		res += "etat final : "+efinal+"\n";
+		//tab des epsilon-transitions
+		if (epsilon_transi == null) return res;
+		res += "Epsilon-transitions \n";
+		for (int i=0 ; i<epsilon_transi.size() ; i++) {
+			ArrayList<Integer> destinations = epsilon_transi.get(i);
+			res += i + " -> ";
+			for (Integer d : destinations) {
+				res += d+ " ";
+			}
+			res += "\n";
+		}
 		return res;
 	}
 	
-	public Automate getDeterminisation(Automate auto) {
-		ArrayList<ArrayList<Integer>> newStates = new ArrayList<>();
-		ArrayList<Integer>[] suites = new ArrayList[256];
+	
+	public static Automate getDeterminisation(Automate auto) {
+		ArrayList<HashSet<Integer>> newStates = new ArrayList<>();
+		HashSet<Integer>[] reachables = new HashSet[256];
+		int[] transi_uneligne = new int[256];
 		int cpt = 0;
 		boolean done = false;
 		ArrayList<int[]> transi = new ArrayList<>();
 		boolean[] tab_init;
 		boolean[] tab_fin;
 		Integer[][] transitions;
-		/**
-				private Integer[][] transitions;
-		private ArrayList<ArrayList<Integer>> epsilon_transi; 
-		private boolean[] tab_init ;
-		private boolean[] tab_fin; 
-		private int einitial;
-		private int efinal;
-		**/
-		//initialisation de la procédure
-		newStates.add(new ArrayList<>());
-		newStates.get(0).add(0);
 
+		//initialisation de la procédure
+		newStates.add(new HashSet<>());
+		newStates.get(0).add(0);
+		
 		while (!done) {
+			//réinitialisations des outils
+			reachables = new HashSet[256];
+			Arrays.fill(transi_uneligne, -1);
 			//ajout des etats atteignables suivant epsilon transition depuis etat cpt
 			ArrayList<Integer> epsilons = auto.epsilon_transi.get(cpt);
 			newStates.get(cpt).addAll(epsilons);
@@ -259,23 +288,29 @@ public class Automate {
 			for (Integer fromState : newStates.get(cpt)) {
 				for (int j=0; j<256; j++) {
 					Integer toState = auto.transitions[fromState][j];
-					if (toState != null)
-						if (suites[j] == null)
-							suites[j] = new ArrayList<>();
-						suites[j].add(toState);
-				}
-				//ajout des prochaines étapes d'exploration (cad les newStates) et ajout des transitions 
-				int[] transi_uneligne = new int[256];
-				for (int j=0; j<256; j++) {
-					if (suites[j] != null) {
-						//ajout seulement si l'état n'existe pas déjà dans les newStates
-						if (!newStates.contains(suites[j])) 
-							newStates.add(suites[j]);
-						transi_uneligne[j]=newStates.indexOf(suites[j]);
+					if (toState != -1) {
+						if (reachables[j] == null) {
+							reachables[j] = new HashSet<>();
+						}
+						reachables[j].add(toState);
+						// recherche des états atteignables en epsilon-transition depuis toState
+						reachables[j].addAll(getEpsilonReachables(toState,auto.epsilon_transi,new HashSet<>())); 
 					}
 				}
-				transi.add(cpt, transi_uneligne);
 			}
+			//sur le tableau de determinisation = une ligne de faite
+			//ajout des prochaines étapes d'exploration (cad les newStates) et ajout des vrais transitions pour le nouvel automate
+			for (int j=0; j<256; j++) {
+				if (reachables[j] != null) {
+					if (!newStates.contains(reachables[j])) { //si l'état n'existe pas encore dans les newStates
+						newStates.add(reachables[j]);
+						transi_uneligne[j] = newStates.size()-1;						
+					}else{ 
+						transi_uneligne[j] = newStates.indexOf(reachables[j]);
+					}
+				}
+			}
+			transi.add(cpt, transi_uneligne.clone());
 			cpt++;
 			if (cpt >= newStates.size()) //il n'y a plus d'état à explorer
 				done = true;
@@ -300,7 +335,19 @@ public class Automate {
 		}
 		Automate ret = new Automate(transitions, tab_init, tab_fin);
 		return ret;
-
+	}
+	
+	public static HashSet<Integer> getEpsilonReachables(int fromState, ArrayList<ArrayList<Integer>> epsilon_transi, HashSet<Integer> existings){
+		HashSet<Integer> res = new HashSet<>();
+		ArrayList<Integer> dest = epsilon_transi.get(fromState);
+		if (dest.isEmpty())
+			return res;
+		for (Integer d : dest) {
+			if (existings.contains(d)) continue;
+			res.add(d);
+			res.addAll(getEpsilonReachables(d, epsilon_transi, res));
+		}
+		return res;
 	}
 	
 }
