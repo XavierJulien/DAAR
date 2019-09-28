@@ -276,14 +276,14 @@ public class Automate {
 		//initialisation de la procédure
 		newStates.add(new HashSet<>());
 		newStates.get(0).add(0);
+		//ajout des etats atteignables suivant epsilon transition depuis etat 0
+		ArrayList<Integer> epsilons = auto.epsilon_transi.get(0);
+		newStates.get(0).addAll(epsilons);
 		
 		while (!done) {
 			//réinitialisations des outils
 			reachables = new HashSet[256];
 			Arrays.fill(transi_uneligne, -1);
-			//ajout des etats atteignables suivant epsilon transition depuis etat cpt
-			ArrayList<Integer> epsilons = auto.epsilon_transi.get(cpt);
-			newStates.get(cpt).addAll(epsilons);
 			//exploration des états atteignables depuis newstates suivant la transition
 			for (Integer fromState : newStates.get(cpt)) {
 				for (int j=0; j<256; j++) {
@@ -348,6 +348,15 @@ public class Automate {
 			res.addAll(getEpsilonReachables(d, epsilon_transi, res));
 		}
 		return res;
+	}
+	
+	public static Automate getMinimisation(Automate automate) {
+		Automate pre = preProcess();
+		return null;
+	}
+
+	public static Automate preProcess() {
+		return null;
 	}
 	
 }
