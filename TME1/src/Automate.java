@@ -13,6 +13,18 @@ public class Automate {
 	
 	//private RegExTree input;
 	
+	public Integer[][] getTransitions() {
+		return transitions;
+	}
+	
+	public boolean[] getTab_fin() {
+		return tab_fin;
+	}
+	
+	public boolean[] getTab_init() {
+		return tab_init;
+	}
+	
 	//constructeur d'un automate simple (basis)
 	public Automate(RegExTree input) {
 		this.einitial = 0;
@@ -85,9 +97,9 @@ public class Automate {
 
 	public static Automate getAutomate(RegExTree input) {
 		switch(input.root) {
-			case RegEx.ETOILE : System.out.println("ETOILE");return applyEtoile(input.subTrees.get(0));
-			case RegEx.CONCAT : System.out.println("CONCAT");return applyConcat(input.subTrees.get(0),input.subTrees.get(1));
-			case RegEx.ALTERN : System.out.println("ALTERN");return applyAltern(input.subTrees.get(0),input.subTrees.get(1));
+			case RegEx.ETOILE : return applyEtoile(input.subTrees.get(0));
+			case RegEx.CONCAT : return applyConcat(input.subTrees.get(0),input.subTrees.get(1));
+			case RegEx.ALTERN : return applyAltern(input.subTrees.get(0),input.subTrees.get(1));
 			default : return applyBasis(input);
 		}
 	}
@@ -238,6 +250,7 @@ public class Automate {
 		//tab des transitions
 		res += "Transitions : \n";
 		for (int i=0;i<transitions.length;i++) {
+			res += i+":";
 			for (int j=0;j<transitions[0].length;j++) {
 				if(transitions[i][j] != -1) {
 					res += transitions[i][j];

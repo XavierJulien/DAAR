@@ -44,8 +44,16 @@ public class RegEx {
         System.out.println("  >> Tree result: "+ret.toString()+".");
         Automate auto = Automate.getAutomate(ret);
         System.out.println("  >> Automate result: \n"+auto.toString());
-        Automate auto_min = Automate.getDeterminisation(auto);
-        System.out.println("  >> Automate minimisÃ©e: \n"+auto_min.toString());
+        Automate auto_det = Automate.getDeterminisation(auto);
+        System.out.println("  >> Automate déterminisé: \n"+auto_det.toString());
+        System.out.println("  >> Test avec le texte babylonia: \n Mots valides : ");
+        ArrayList<String> words = new Egrep(auto_det).run("test.txt");
+        String res = "";
+        for(String s : words) {
+        	res += s+"\n";
+        }
+        System.out.println(res);
+        
       } catch (Exception e) {
     	  	e.printStackTrace();
         System.err.println("  >> ERROR: syntax error for regEx \""+regEx+"\".");
