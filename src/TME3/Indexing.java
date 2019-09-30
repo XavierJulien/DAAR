@@ -40,47 +40,52 @@ public class Indexing {
 	}
 
 	public static void main(String[] args) {
+		File vol1 = new File("vol1.txt");
+		File vol2 = new File("vol2.txt");
+		ArrayList<File> files = new ArrayList<>();
+		files.add(vol1);
+		files.add(vol2);
 		File f = new File("vol2.txt");
-		BufferedReader br;
-		Matching match = new Matching();
-		try {
-			br = new BufferedReader(new FileReader(f));
+		for(int i = 0;i<files.size();i++) {
+			BufferedReader br;
+			Matching match = new Matching();
+			try {
+				br = new BufferedReader(new FileReader(files.get(i)));
 
-			String line;
-			int numeroligne = 0;
+				String line;
+				int numeroligne = 0;
 
-			HashMap<String, ArrayList<Pair>> map = new HashMap<String,ArrayList<Pair>>();
+				HashMap<String, ArrayList<Pair>> map = new HashMap<String,ArrayList<Pair>>();
 
-			while ((line = br.readLine()) != null) {
-				numeroligne++;
-				line = line.toLowerCase();
-				String line_lu = "";
-				String line_reste = line;
-				String[] splitedLine = line.split("[^a-zA-Z'-]");
-				for (String word : splitedLine){		
-					if(word.length() == 0) {continue;}
-					int[] retenue = match.genRetenue(word.toCharArray());
-					int colonne = match.matchingAlgo(word.toCharArray(), retenue, line_reste.toCharArray());
-					if (!map.containsKey(word)) {
-						ArrayList<Pair> coords_list = new ArrayList<>();
-						coords_list.add(new Pair(numeroligne, colonne+line_lu.length()));
-						map.put(word,coords_list);
-					}else {
-						map.get(word).add(new Pair(numeroligne, colonne+line_lu.length()));
+				while ((line = br.readLine()) != null) {
+					numeroligne++;
+					line = line.toLowerCase();
+					String line_lu = "";
+					String line_reste = line;
+					String[] splitedLine = line.split("[^a-zA-Z'-]");
+					for (String word : splitedLine){		
+						if(word.length() == 0) {continue;}
+						int[] retenue = match.genRetenue(word.toCharArray());
+						int colonne = match.matchingAlgo(word.toCharArray(), retenue, line_reste.toCharArray());
+						if (!map.containsKey(word)) {
+							ArrayList<Pair> coords_list = new ArrayList<>();
+							coords_list.add(new Pair(numeroligne, colonne+line_lu.length()));
+							map.put(word,coords_list);
+						}else {
+							map.get(word).add(new Pair(numeroligne, colonne+line_lu.length()));
+						}
+						line_lu = line_lu+line_reste.substring(0,colonne+word.length());
+						line_reste = line_reste.substring(colonne+word.length()); 
 					}
-					line_lu = line.substring(0,colonne+word.length());
-					line_reste = line.substring(colonne+word.length()); 
-					
-					System.out.println(line_lu);
-
 				}
-			}
-			br.close();
-			
-			PrintWriter writer = new PrintWriter("test2.index", "UTF-8");
-			map.forEach((k,v)-> {writer.println(k+" "+getCoords(v));});
-			writer.close();
-		} catch (IOException e) {}
+				br.close();
+				
+				PrintWriter writer = new PrintWriter("test"+(i+1)+".index", "UTF-8");
+				map.forEach((k,v)-> {writer.println(k+" "+getCoords(v));});
+				writer.close();
+			} catch (IOException e) {}
+		}
+		
 		
 		
 	}
