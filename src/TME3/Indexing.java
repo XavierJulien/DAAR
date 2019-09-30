@@ -40,7 +40,7 @@ public class Indexing {
 	}
 
 	public static void main(String[] args) {
-		File f = new File("vol1.txt");
+		File f = new File("vol2.txt");
 		BufferedReader br;
 		Matching match = new Matching();
 		try {
@@ -54,25 +54,30 @@ public class Indexing {
 			while ((line = br.readLine()) != null) {
 				numeroligne++;
 				line = line.toLowerCase();
+				String line_lu = "";
+				String line_reste = line;
 				String[] splitedLine = line.split("[^a-zA-Z'-]");
 				for (String word : splitedLine){		
 					if(word.length() == 0) {continue;}
 					int[] retenue = match.genRetenue(word.toCharArray());
-					int colonne = match.matchingAlgo(word.toCharArray(), retenue, line.toCharArray());
-					if(colonne == -1 ) {System.out.println(line+";"+word);}
+					int colonne = match.matchingAlgo(word.toCharArray(), retenue, line_reste.toCharArray());
 					if (!map.containsKey(word)) {
 						ArrayList<Pair> coords_list = new ArrayList<>();
-						coords_list.add(new Pair(numeroligne, colonne));
+						coords_list.add(new Pair(numeroligne, colonne+line_lu.length()));
 						map.put(word,coords_list);
 					}else {
-						map.get(word).add(new Pair(numeroligne, colonne));
+						map.get(word).add(new Pair(numeroligne, colonne+line_lu.length()));
 					}
+					line_lu = line.substring(0,colonne+word.length());
+					line_reste = line.substring(colonne+word.length()); 
+					
+					System.out.println(line_lu);
 
 				}
 			}
 			br.close();
 			
-			PrintWriter writer = new PrintWriter("test1.index", "UTF-8");
+			PrintWriter writer = new PrintWriter("test2.index", "UTF-8");
 			map.forEach((k,v)-> {writer.println(k+" "+getCoords(v));});
 			writer.close();
 		} catch (IOException e) {}
