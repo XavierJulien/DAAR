@@ -1,3 +1,4 @@
+package TME1;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -45,7 +46,7 @@ public class RegEx {
         Automate auto = Automate.getAutomate(ret);
         System.out.println("  >> Automate result: \n"+auto.toString());
         Automate auto_det = Automate.getDeterminisation(auto);
-        System.out.println("  >> Automate déterminisé: \n"+auto_det.toString());
+        System.out.println("  >> Automate dï¿½terminisï¿½: \n"+auto_det.toString());
         System.out.println("  >> Test avec le texte babylonia: \n Mots valides : ");
         ArrayList<String> words = new Egrep(auto_det).run("test.txt");
         String res = "";

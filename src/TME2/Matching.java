@@ -1,25 +1,25 @@
-import java.lang.StringBuilder;
+package TME2;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Matching{
 
     public int matchingAlgo (char[] facteur, int[] retenue, char[] texte){
-        int i = 0,j = 0;
-        while(i<texte.length){
-            System.out.println("print "+texte[i]);
-            if(j==facteur.length){
-                return i-facteur.length;
+        int courant_line = 0,courant_facteur = 0;
+        while(courant_line<=texte.length){
+            if(courant_facteur==facteur.length){
+                return courant_line-facteur.length;
             }
-            if(texte[i] == facteur[j]){
-                i++;
-                j++;
+            if(texte[courant_line] == facteur[courant_facteur]){
+                courant_line++;
+                courant_facteur++;
             }else{
-                if(retenue[j]==-1){
-                    i++;
-                    j=0;
+                if(retenue[courant_facteur]==-1){
+                    courant_line++;
+                    courant_facteur=0;
                 }else{
-                    j=retenue[j];
+                    courant_facteur=retenue[courant_facteur];
                 }
             }
         }
@@ -35,7 +35,7 @@ public class Matching{
                 retenue[i] = -1;
             }else{
                 char temp = facteur[i];
-                ArrayList<String> list_suffix= getSuffixList(Arrays.copyOfRange(facteur,0,i)); //i est exclue
+                ArrayList<String> list_suffix= getSuffixList(Arrays.copyOfRange(facteur,0,i)); //i est exclu
                 ArrayList<String> list_proper_prefix= getPrefixList(Arrays.copyOfRange(facteur,0,i));
                 String s = compareList(list_suffix,list_proper_prefix);
                 if (facteur[s.length()]==temp)

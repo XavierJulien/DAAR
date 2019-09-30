@@ -1,3 +1,4 @@
+package TME1;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -48,26 +49,26 @@ public class Egrep {
 			int current_state = 0;
 			//on parcours le mot tant qu'on ne peut pas commencer le parcours du DFA
 			while(!start_parcours) {
-				if(current_letter != word.length()-1) {//si on n'est pas arrivé à la fin du mot , on continue à chercher une lettre pour commencer le parcours
+				if(current_letter != word.length()-1) {//si on n'est pas arrivï¿½ ï¿½ la fin du mot , on continue ï¿½ chercher une lettre pour commencer le parcours
 					for(int i = 0;i<transis[current_state].length;i++) {
 						if(transis[current_state][i] != -1) {
-							if((int)(word_list[current_letter]) == i) {//si notre lettre courant est égale à la position 
+							if((int)(word_list[current_letter]) == i) {//si notre lettre courant est ï¿½gale ï¿½ la position 
 								start_parcours = true;
 								current_state = transis[current_state][i];
 							}
 						}
 					}
 					current_letter++;
-				}else {//si on est arrivé à la fin , on ne passe jamais le premier etat de l'automate, on ne valide pas le mot
+				}else {//si on est arrivï¿½ ï¿½ la fin , on ne passe jamais le premier etat de l'automate, on ne valide pas le mot
 					return false;
 				}
 			}
 			//on parcours le DFA tant quon n'est pas a la fin du mot
-			boolean suite = false; // permet de savoir si on as trouvé la lettre correspondante dans l'une des possibilité de de l'etat courant
+			boolean suite = false; // permet de savoir si on as trouvï¿½ la lettre correspondante dans l'une des possibilitï¿½ de de l'etat courant
 			while(current_letter != word.length()-1) {
 				for(int i = 0;i<transis[current_state].length;i++) {
 					if(transis[current_state][i] != -1) {
-						if((int)(word_list[current_letter]) == i) {//si notre lettre courant est égale à la position 
+						if((int)(word_list[current_letter]) == i) {//si notre lettre courant est ï¿½gale ï¿½ la position 
 							suite = true;
 							current_state = transis[current_state][i];
 							break;
@@ -76,12 +77,12 @@ public class Egrep {
 				}
 				if(suite) {//si on peut faire le prochain etat de l'automate
 					if(tab_final[current_state]) {
-						return true; //si on est tombé sur un etat final acceptant on s'arrete
+						return true; //si on est tombï¿½ sur un etat final acceptant on s'arrete
 					}else { //si on est pas encore sur le dernier etat, on continue
 						current_letter++;
 						suite = false;
 					}
-				}else {//si on as pas trouvé de lettre pour avancer dans l'automate, on remet l'etat courant à 0 et on refait la recherche à partir de la même lettre
+				}else {//si on as pas trouvï¿½ de lettre pour avancer dans l'automate, on remet l'etat courant ï¿½ 0 et on refait la recherche ï¿½ partir de la mï¿½me lettre
 					current_state = 0;
 					start_parcours = false;
 					break;
