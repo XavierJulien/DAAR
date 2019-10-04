@@ -31,14 +31,14 @@ public class Indexing {
 	}
 
 
-	public static String getCoords(ArrayList<Pair> array_pair) {
+	public String getCoords(ArrayList<Pair> array_pair) {
 		String coords = "";
 		for(Pair pair : array_pair)
 			coords+=pair.toString();
 		return coords;
 	}
 
-	public static void runIndexing(ArrayList<File> files) {
+	public void runIndexing(ArrayList<File> files) {
 		for(int i = 0;i<files.size();i++) {
 			BufferedReader br;
 			Matching match = new Matching();
@@ -79,16 +79,5 @@ public class Indexing {
 			} catch (IOException e) {}
 		}
 	}
-
-	public static void main(String[] args) {
-		File vol1 = new File("vol1.txt");
-		File vol2 = new File("vol2.txt");
-		ArrayList<File> files = new ArrayList<>();
-		files.add(vol1);
-		files.add(vol2);
-		runIndexing(files);
-	}
-
-
 }
 
