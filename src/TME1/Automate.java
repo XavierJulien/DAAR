@@ -276,6 +276,7 @@ public class Automate {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public static Automate getDeterminisation(Automate auto) {
 		ArrayList<HashSet<Integer>> newStates = new ArrayList<>();
 		HashSet<Integer>[] reachables = new HashSet[256];
@@ -366,7 +367,7 @@ public class Automate {
 	
 	public static Automate getMinimisation(Automate automate) {
 		Automate pre = preProcess();
-		return null;
+		return pre;
 	}
 
 	public static Automate preProcess() {

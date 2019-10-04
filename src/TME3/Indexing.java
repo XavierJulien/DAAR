@@ -12,7 +12,11 @@ import TME2.Matching;
 
 public class Indexing {
 
-
+	/** 
+	 * Classe représentant la Structure de donnée d'une Paire de deux entiers
+	 * getters/setters pour chaque entier
+	 * toString pour afficher la paire (A,B)
+	 */
 	static class Pair{
 		private Integer a,b;
 		public Pair(Integer a, Integer b) {
@@ -21,31 +25,20 @@ public class Indexing {
 		}
 		public Integer getA() {return a;}
 		public Integer getB() {return b;}
-		
-		public String toString() {
-			String res = "("+getA()+","+getB()+")";
-			return res;
-		}
+		public String toString() {return "("+getA()+","+getB()+")";}
 
 
 	}
 
-	
-	public static String getCoords(ArrayList<Pair> a) {
-		String res = "";
-		for(Pair p : a) {
-			res+=p.toString();
-		}
-		return res;
+
+	public static String getCoords(ArrayList<Pair> array_pair) {
+		String coords = "";
+		for(Pair pair : array_pair)
+			coords+=pair.toString();
+		return coords;
 	}
 
-	public static void main(String[] args) {
-		File vol1 = new File("vol1.txt");
-		File vol2 = new File("vol2.txt");
-		ArrayList<File> files = new ArrayList<>();
-		files.add(vol1);
-		files.add(vol2);
-		File f = new File("vol2.txt");
+	public static void runIndexing(ArrayList<File> files) {
 		for(int i = 0;i<files.size();i++) {
 			BufferedReader br;
 			Matching match = new Matching();
@@ -79,15 +72,21 @@ public class Indexing {
 					}
 				}
 				br.close();
-				
+
 				PrintWriter writer = new PrintWriter("test"+(i+1)+".index", "UTF-8");
 				map.forEach((k,v)-> {writer.println(k+" "+getCoords(v));});
 				writer.close();
 			} catch (IOException e) {}
 		}
-		
-		
-		
+	}
+
+	public static void main(String[] args) {
+		File vol1 = new File("vol1.txt");
+		File vol2 = new File("vol2.txt");
+		ArrayList<File> files = new ArrayList<>();
+		files.add(vol1);
+		files.add(vol2);
+		runIndexing(files);
 	}
 
 

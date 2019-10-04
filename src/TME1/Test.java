@@ -1,5 +1,4 @@
 package TME1;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Test {
@@ -19,7 +18,7 @@ public class Test {
 		a3.add(1);
 		a3.add(2);
 		a3.add(3);
-		
+
 		System.out.println(a1.contains(a3));
 	}
 }
