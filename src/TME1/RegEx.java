@@ -17,6 +17,7 @@ public class RegEx {
 
 	//REGEX
 	private static String regEx;
+	private static String file;
 
 	//CONSTRUCTOR
 	public RegEx(){}
@@ -24,13 +25,24 @@ public class RegEx {
 	//MAIN
 	public static void main(String arg[]) {
 		System.out.println("Welcome to Bogota, Mr. Thomas Anderson.");
-		if (arg.length!=0) {
+		if (arg.length == 2) {
 			regEx = arg[0];
+			file = arg[1];
 		} else {
-			Scanner scanner = new Scanner(System.in);
-			System.out.print("  >> Please enter a regEx: ");
-			regEx = scanner.next();
-			scanner.close();
+			if(arg.length == 1) {
+				regEx = arg[0];
+				Scanner scanner = new Scanner(System.in);
+				System.out.print("  >> Please enter a file: ");
+				file = scanner.next();
+				scanner.close();
+			}else {
+				Scanner scanner = new Scanner(System.in);
+				System.out.print("  >> Please enter a regEx: ");
+				regEx = scanner.next();
+				System.out.print("  >> Please enter a file: ");
+				file = scanner.next();
+				scanner.close();
+			}
 		}
 		System.out.println("  >> Parsing regEx \""+regEx+"\".");
 		System.out.println("  >> ...");
@@ -48,8 +60,8 @@ public class RegEx {
 				//System.out.println("  >> Automate result: \n"+auto.toString());
 				Automate auto_det = Automate.getDeterminisation(auto);
 				//System.out.println("  >> Automate d�terminis�: \n"+auto_det.toString());
-				System.out.println("  >> Test avec le texte babylonia: \n Mots valides : ");
-				ArrayList<String> words = new MachineDeGuerre(auto_det).run("vol1.txt");
+				System.out.println("  >> egrep \""+regEx+"\" "+file+" \n");
+				ArrayList<String> words = new MachineDeGuerre(auto_det).run(file);
 				String res = "";
 				for(String s : words) {
 					res += s+"\n";

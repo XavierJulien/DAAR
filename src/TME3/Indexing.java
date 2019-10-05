@@ -31,17 +31,16 @@ public class Indexing {
 	}
 
 
-	public String getCoords(ArrayList<Pair> array_pair) {
+	public static String getCoords(ArrayList<Pair> array_pair) {
 		String coords = "";
 		for(Pair pair : array_pair)
 			coords+=pair.toString();
 		return coords;
 	}
 
-	public void runIndexing(ArrayList<File> files) {
+	public static void runIndexing(ArrayList<File> files) {
 		for(int i = 0;i<files.size();i++) {
 			BufferedReader br;
-			Matching match = new Matching();
 			try {
 				br = new BufferedReader(new FileReader(files.get(i)));
 
@@ -58,8 +57,8 @@ public class Indexing {
 					String[] splitedLine = line.split("[^a-zA-Z'-]");
 					for (String word : splitedLine){		
 						if(word.length() == 0) {continue;}
-						int[] retenue = match.genRetenue(word.toCharArray());
-						int colonne = match.matchingAlgo(word.toCharArray(), retenue, line_reste.toCharArray());
+						int[] retenue = Matching.genRetenue(word.toCharArray());
+						int colonne = Matching.matchingAlgo(word.toCharArray(), retenue, line_reste.toCharArray());
 						if (!map.containsKey(word)) {
 							ArrayList<Pair> coords_list = new ArrayList<>();
 							coords_list.add(new Pair(numeroligne, colonne+line_lu.length()));

@@ -17,7 +17,7 @@ public class Matching{
 	 * @param texte texte sur lequel on applique l'algorithme
 	 * @return position de la première charactère du premier mot que l'on match dans le texte
 	 */
-    public int matchingAlgo (char[] facteur, int[] retenue, char[] texte){
+    public static int matchingAlgo (char[] facteur, int[] retenue, char[] texte){
         int courant_line = 0,courant_facteur = 0;
         while(courant_line<=texte.length-1){
             if(courant_facteur==facteur.length){
@@ -46,7 +46,7 @@ public class Matching{
      * @param facteur mot représenté sous forme de tableau de charactère
      * @return tableau représentant la retenue
      */
-    public int[] genRetenue(char[] facteur){
+    public static int[] genRetenue(char[] facteur){
         char firstletter = facteur[0];
         int[] retenue = new int[facteur.length+1];
         retenue[facteur.length] = 0;
@@ -68,7 +68,7 @@ public class Matching{
     //*********************************************
     //*				   AUXILLARY	     		  *
     //*********************************************
-    public ArrayList<String> getPrefixList(char[] facteur){
+    public static ArrayList<String> getPrefixList(char[] facteur){
         ArrayList<String> list_prefix = new ArrayList<String>();
         String s = ""; 
         for(int i = 0;i<facteur.length-1;i++){
@@ -78,7 +78,7 @@ public class Matching{
         return list_prefix;
     }
     
-    public ArrayList<String> getSuffixList(char[] facteur){
+    public static ArrayList<String> getSuffixList(char[] facteur){
         ArrayList<String> list_suffix = new ArrayList<String>();
         String s = ""; 
         for(int i = facteur.length-1;i>=1;i--){
@@ -88,27 +88,43 @@ public class Matching{
         return list_suffix;
     }
     
-    public String compareList(ArrayList<String> list1, ArrayList<String> list2){
+    public static String compareList(ArrayList<String> list1, ArrayList<String> list2){
         for(int i = list1.size()-1;i>0;i--)
             if(list1.get(i).equals(list2.get(i))) return list1.get(i);
         return "";
     }
 
-    public void run(){
-		Scanner scanner = new Scanner(System.in);
-		System.out.print("  >> Please enter a regEx: ");
-		char[] regEx = scanner.next().toCharArray();
-		scanner.close();
-		Matching m = new Matching();
-		int[] retenue = m.genRetenue(regEx);
-		File f = new File("vol1.txt");
+    public static void main(String arg[]){
+    	char[] regEx;
+    	String file;
+    	if (arg.length == 2) {
+			regEx = arg[0].toCharArray();
+			file = arg[1];
+		} else {
+			if(arg.length == 1) {
+				regEx = arg[0].toCharArray();
+				Scanner scanner = new Scanner(System.in);
+				System.out.print("  >> Please enter a file: ");
+				file = scanner.next();
+				scanner.close();
+			}else {
+				Scanner scanner = new Scanner(System.in);
+				System.out.print("  >> Please enter a regEx: ");
+				regEx = scanner.next().toCharArray();
+				System.out.print("  >> Please enter a file: ");
+				file = scanner.next();
+				scanner.close();
+			}
+		}
+		int[] retenue = genRetenue(regEx);
+		File f = new File(file);
 		ArrayList<String> lines_ok = new ArrayList<String>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(f));
 			String line;
 			while((line = br.readLine()) != null) {
 				if(line.length() != 0) {
-					int pos = m.matchingAlgo(regEx,retenue,line.toCharArray());
+					int pos = matchingAlgo(regEx,retenue,line.toCharArray());
 					if(!lines_ok.contains(line) && pos != -1) {//on check chaque mot et on verifie qu'il n'y ait pas de doublon
 						lines_ok.add(line);
 					}
@@ -118,7 +134,7 @@ public class Matching{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		System.out.println("  >> egrep \""+arg[0]+"\" "+file+" \n");
 		String res = "";
 		for(String s : lines_ok) {
 			res += s+"\n";
