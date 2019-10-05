@@ -13,7 +13,13 @@ public class TestIndexing {
 		ArrayList<File> files = new ArrayList<>();
 		files.add(vol1);
 		files.add(vol2);
-		index.runIndexing(files);
+		RadixTree radix  = Indexing.runIndexing(files);
+		ArrayList<RadixTree> rl = radix.getList_noeuds().get(0).getList_noeuds().get(0).getList_noeuds().get(0).getList_noeuds().get(0).getList_noeuds();
+		for(RadixTree r : rl) {
+			System.out.println(r.getCharacter());
+			System.out.println(r.isFin());
+			System.out.println(r.getList_coords());
+		}
 	}
 
 }

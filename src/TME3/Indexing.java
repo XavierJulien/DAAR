@@ -6,39 +6,24 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import static java.util.stream.Collectors.toMap;
 
 import TME2.Matching;
 
 public class Indexing {
 
-	/** 
-	 * Classe représentant la Structure de donnée d'une Paire de deux entiers
-	 * getters/setters pour chaque entier
-	 * toString pour afficher la paire (A,B)
-	 */
-	static class Pair{
-		private Integer a,b;
-		public Pair(Integer a, Integer b) {
-			this.a = a;
-			this.b = b;
-		}
-		public Integer getA() {return a;}
-		public Integer getB() {return b;}
-		public String toString() {return "("+getA()+","+getB()+")";}
-
-
-	}
-
-
-	public static String getCoords(ArrayList<Pair> array_pair) {
+	public static String getCoords(ArrayList<Coord> array_pair) {
 		String coords = "";
-		for(Pair pair : array_pair)
+		for(Coord pair : array_pair)
 			coords+=pair.toString();
 		return coords;
 	}
 
-	public static void runIndexing(ArrayList<File> files) {
+	public static RadixTree runIndexing(ArrayList<File> files) {
 		for(int i = 0;i<files.size();i++) {
 			BufferedReader br;
 			try {
@@ -47,7 +32,7 @@ public class Indexing {
 				String line;
 				int numeroligne = 0;
 
-				HashMap<String, ArrayList<Pair>> map = new HashMap<String,ArrayList<Pair>>();
+				HashMap<String, ArrayList<Coord>> map = new HashMap<String,ArrayList<Coord>>();
 
 				while ((line = br.readLine()) != null) {
 					numeroligne++;
@@ -60,23 +45,36 @@ public class Indexing {
 						int[] retenue = Matching.genRetenue(word.toCharArray());
 						int colonne = Matching.matchingAlgo(word.toCharArray(), retenue, line_reste.toCharArray());
 						if (!map.containsKey(word)) {
-							ArrayList<Pair> coords_list = new ArrayList<>();
-							coords_list.add(new Pair(numeroligne, colonne+line_lu.length()));
+							ArrayList<Coord> coords_list = new ArrayList<>();
+							coords_list.add(new Coord(numeroligne, colonne+line_lu.length()));
 							map.put(word,coords_list);
 						}else {
-							map.get(word).add(new Pair(numeroligne, colonne+line_lu.length()));
+							map.get(word).add(new Coord(numeroligne, colonne+line_lu.length()));
 						}
 						line_lu = line_lu+line_reste.substring(0,colonne+word.length());
 						line_reste = line_reste.substring(colonne+word.length()); 
 					}
 				}
 				br.close();
-
-				PrintWriter writer = new PrintWriter("test"+(i+1)+".index", "UTF-8");
-				map.forEach((k,v)-> {writer.println(k+" "+getCoords(v));});
-				writer.close();
-			} catch (IOException e) {}
+				HashMap<String, ArrayList<Coord>> sorted_map = map.entrySet().stream()
+						.sorted(Comparator.comparingInt(v -> v.getValue().size()))
+						.collect(toMap(
+								Map.Entry::getKey,
+								Map.Entry::getValue,
+								(a, b) -> { throw new AssertionError(); },
+								LinkedHashMap::new
+								));
+				ArrayList<Pair> string_coords = new ArrayList<>();
+				sorted_map.forEach((k,v) -> string_coords.add(new Pair(k,v)));
+				return RadixTree.createTree(string_coords);
+			} catch (IOException e) {
+				return null;
+			}
 		}
+		return null;
 	}
 }
-
+/*PrintWriter writer = new PrintWriter("test"+(i+1)+".index", "UTF-8");
+map.forEach((k,v)-> {writer.println(k+" "+getCoords(v));});
+writer.close();
+*/

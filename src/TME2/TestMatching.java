@@ -14,8 +14,7 @@ public class TestMatching {
 		System.out.print("  >> Please enter a regEx: ");
 		char[] regEx = scanner.next().toCharArray();
 		scanner.close();
-		Matching m = new Matching();
-		int[] retenue = m.genRetenue(regEx);
+		int[] retenue = Matching.genRetenue(regEx);
 		File f = new File("vol1.txt");
 		ArrayList<String> lines_ok = new ArrayList<String>();
 		try {
@@ -23,7 +22,8 @@ public class TestMatching {
 			String line;
 			while((line = br.readLine()) != null) {
 				if(line.length() != 0) {
-					int pos = m.matchingAlgo(regEx,retenue,line.toCharArray());
+					
+					int pos = Matching.matchingAlgo(regEx,retenue,line.toCharArray());
 					if(!lines_ok.contains(line) && pos != -1) {//on check chaque mot et on verifie qu'il n'y ait pas de doublon
 						lines_ok.add(line);
 					}
