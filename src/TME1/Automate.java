@@ -1,7 +1,9 @@
 package TME1;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Automate {
 	
@@ -12,7 +14,6 @@ public class Automate {
 	private int einitial;
 	private int efinal;
 	
-	//private RegExTree input;
 	
 	public Integer[][] getTransitions() {
 		return transitions;
@@ -366,12 +367,74 @@ public class Automate {
 	}
 	
 	public static Automate getMinimisation(Automate automate) {
-		Automate pre = preProcess();
+		Automate pre = preProcess(automate);
 		return pre;
 	}
 
-	public static Automate preProcess() {
+	public static Automate preProcess(Automate automate) {
+		Integer[][] transitions = automate.transitions;
+		ArrayList<ArrayList<Integer>> newStates = new ArrayList<>();
+		
+		boolean[] treated = new boolean[transitions.length];
+		Arrays.fill(treated, false);
+		
+		for(int i=0;i<transitions.length;i++) {
+			if (treated[i]) continue;
+			Integer[] etatA = transitions[i];
+			ArrayList<Integer> similar = getSimilarIndex(etatA,transitions,i);
+			for (Integer index : similar) {
+				treated[index] = true;
+			}
+			newStates.add(similar);
+		}
+		
+		Integer[][] newTransitions = new Integer[newStates.size()][256];
+		Integer[] newTransition = new Integer[256];
+		
+		Map<Integer,Integer> map_old_new = new HashMap<>();
+		for (int i=0;i<newStates.size();i++) {
+			ArrayList<Integer> etatsSimilaires = newStates.get(i);
+			for (Integer old : etatsSimilaires) {
+				map_old_new.put(old, i);
+			}
+		}
+		
+		for (int k=0;k<newStates.size();k++) {
+			ArrayList<Integer> a = newStates.get(k);
+			int etatQuiReste = a.get(0);
+			Integer[] newTransi = transitions[etatQuiReste].clone();
+			for (int i=0;i<newTransi.length;i++) {
+				int etat = newTransi[i];
+				newTransi[i] = map_old_new.get(etat);
+			}
+			newTransitions[k] = newTransi;
+		}
+		
+		//Transitions est updated, reste a update la table de boolean initstate et finstate etc .
 		return null;
+	}
+	
+	private static ArrayList<Integer> getSimilarIndex(Integer[] etatA, Integer[][] transitions, int etatCourant) {
+		ArrayList<Integer> res = new ArrayList<>();
+		res.add(etatCourant);
+		for(int i=etatCourant+1;i<transitions.length;i++) {
+			Integer[] etatB = transitions[i];
+			if (isEqual(etatA, etatB))
+				res.add(i);
+		}
+		return res;
+	}
+
+
+	public static boolean isEqual(Integer[] a, Integer[]b) {
+		if (a.length!=b.length) return false;
+		
+		for(int i=0;i<a.length;i++) {
+			if (a[i]!=b[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 }
