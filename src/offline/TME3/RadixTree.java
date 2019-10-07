@@ -1,10 +1,22 @@
 package offline.TME3;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 
-public class RadixTree {
+public class RadixTree implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1677381878864364819L;
+
 
 	private char character;	
 	private boolean fin;
@@ -69,21 +81,23 @@ public class RadixTree {
 	}
 
 	public ArrayList<Coord> search(char[] s) {
-			if(s.length == 1) {
-				for(RadixTree r : list_noeuds) {
-					if(r.character == s[0]) {
-						return r.list_coords;
-					}
-				}
-				return null;
-			}
+		System.out.println("ici");
+		if(s.length == 1) {
 			for(RadixTree r : list_noeuds) {
 				if(r.character == s[0]) {
-					System.out.println(r.character);
-					return r.search(Arrays.copyOfRange(s, 1, s.length));
+					System.out.println(r.getCharacter());
+					return r.list_coords;
 				}
 			}
 			return null;
+		}
+		for(RadixTree r : list_noeuds) {
+			if(r.character == s[0]) {
+				System.out.println(r.getCharacter());
+				return r.search(Arrays.copyOfRange(s, 1, s.length));
+			}
+		}
+		return null;
 	}
 
 	public static RadixTree createTree(ArrayList<Pair> string_coords) {
@@ -94,6 +108,22 @@ public class RadixTree {
 		return root;
 	} 
 
+	public void serializeTree(String filename) throws IOException {
+		FileOutputStream fichier = new FileOutputStream(filename);
+		ObjectOutputStream out = new ObjectOutputStream(fichier);
+		out.writeObject(this);
+		out.close();
+		fichier.close();
+		System.out.println("Arbre serialisé au nom " + filename);
+	}
 
+	public static RadixTree unSerializeTree(String filename) throws IOException, ClassNotFoundException {
+        FileInputStream fichier = new FileInputStream(filename);
+        ObjectInputStream ois = new ObjectInputStream(fichier);
+        RadixTree radix = (RadixTree) ois.readObject();
+        ois.close();
+        fichier.close();
+        return radix;
+	}
 
 }
