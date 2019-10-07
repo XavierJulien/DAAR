@@ -1,4 +1,4 @@
-package TME1;
+package offline.TME1;
 import java.util.Scanner;
 import java.util.ArrayList;
 

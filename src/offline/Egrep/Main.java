@@ -1,7 +1,7 @@
-package Egrep;
+package offline.Egrep;
 
-import TME1.RegEx;
-import TME2.Matching;
+import offline.TME2.Matching;
+import offline.TME1.RegEx;
 
 public class Main {
 

@@ -1,4 +1,4 @@
-package TME3;
+package offline.TME3;
 
 import java.util.ArrayList;
 

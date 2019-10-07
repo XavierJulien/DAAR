@@ -1,4 +1,4 @@
-package TME2;
+package offline.TME2;
 
 import java.io.BufferedReader;
 import java.io.File;

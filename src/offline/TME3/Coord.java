@@ -1,4 +1,4 @@
-package TME3;
+package offline.TME3;
 
 /** 
  * Classe représentant la Structure de donnée d'une Coord de deux entiers

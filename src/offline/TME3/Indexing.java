@@ -1,10 +1,9 @@
-package TME3;
+package offline.TME3;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,7 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
-import TME2.Matching;
+import offline.TME2.Matching;
 
 public class Indexing {
 
