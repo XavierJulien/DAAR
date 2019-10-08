@@ -389,7 +389,7 @@ public class Automate {
 		}
 		
 		Integer[][] newTransitions = new Integer[newStates.size()][256];
-		Integer[] newTransition = new Integer[256];
+		//Integer[] newTransition = new Integer[256];
 		
 		Map<Integer,Integer> map_old_new = new HashMap<>();
 		for (int i=0;i<newStates.size();i++) {

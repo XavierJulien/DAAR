@@ -15,12 +15,10 @@ public class TestIndexing {
 		//Indexing.runIndexing(files);
 			
 		RadixTree tree = (RadixTree)RadixTree.unSerializeTree("src/offline/vol2.txt.ser");
-		
-		System.out.println(tree.getCharacter()) ;
 
 		//RadixTree tree = radix_list.get(0);
-		ArrayList<RadixTree> rl = tree.getList_noeuds()/*.get(3).getList_noeuds().get(0).getList_noeuds().get(4).getList_noeuds().get(1).getList_noeuds().get(0).getList_noeuds()*/;
-		/*for(RadixTree r : rl) {
+		/*ArrayList<RadixTree> rl = tree.getList_noeuds();
+		for(RadixTree r : rl) {
 			System.out.println(r.getCharacter());
 			System.out.println(r.isFin());
 			System.out.println(r.getList_coords());

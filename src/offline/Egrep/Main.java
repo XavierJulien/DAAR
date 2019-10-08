@@ -53,13 +53,21 @@ public class Main {
 				ArrayList<Coord> coord_regex = tree.search(regEx.toLowerCase().toCharArray());
 				System.out.println(coord_regex.size());
 				System.out.println("  >> egrep \""+regEx+"\" "+fichier+" \n");
-				/*BufferedReader br = new BufferedReader(new FileReader(new File(fichier)));
-				int current_line = 0;
+				BufferedReader br = new BufferedReader(new FileReader(new File(fichier)));
+				ArrayList<String> text = new ArrayList<String>();
 				String line;
+				while ((line = br.readLine()) != null) {
+				text.add(line);
+				}
+				br.close();
+				for(Coord c : coord_regex) {
+					System.out.println(text.get(c.getA()-1));
+				}
+				/*int current_line = 0;
 				while ((line = br.readLine()) != null) {
 					for(int i =0;i<coord_regex.size();i++) {
 						if(coord_regex.get(i).getA() == current_line) {
-							System.out.println(current_line);
+							//System.out.println(current_line);
 							System.out.println(line);
 							coord_regex.remove(i);
 							current_line++;
@@ -68,7 +76,8 @@ public class Main {
 					}
 					current_line++;
 				}*/
-				Matching.main(args);
+				//Matching.main(args);
+				
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -82,7 +91,7 @@ public class Main {
 	public static void main(String[] args) {
 		File f = new File("src/offline/vol2.txt.ser");
 		if(!f.exists()) {
-			System.out.println("on applique le pré processing de radix tree");
+			System.out.println("on applique le prï¿½ processing de radix tree");
 			Indexing.runIndexing(new File("src/offline/vol2.txt"));
 		}
 		//run("S(a|g|r)*on","src/offline/vol2.txt");

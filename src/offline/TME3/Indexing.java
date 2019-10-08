@@ -47,7 +47,9 @@ public class Indexing {
 						if (!map.containsKey(word)) {
 							ArrayList<Coord> coords_list = new ArrayList<>();
 							coords_list.add(new Coord(numeroligne, colonne+line_lu.length()));
-							map.put(word,coords_list);
+							if(word.length() > 2) {
+								map.put(word,coords_list);								
+							}
 						}else {
 							map.get(word).add(new Coord(numeroligne, colonne+line_lu.length()));
 						}
@@ -66,7 +68,7 @@ public class Indexing {
 								));
 				ArrayList<Pair> string_coords = new ArrayList<>();
 				sorted_map.forEach((k,v) -> string_coords.add(new Pair(k,v)));
-				//serialisation pour ajouter le radix tree dans un fichier et ne pas refaire plusieurs fois cette méthode
+				//serialisation pour ajouter le radix tree dans un fichier et ne pas refaire plusieurs fois cette mï¿½thode
 				RadixTree.createTree(string_coords).serializeTree(file+".ser") ;
 			}
 		} catch (IOException e) {
@@ -116,7 +118,7 @@ public class Indexing {
 							));
 			ArrayList<Pair> string_coords = new ArrayList<>();
 			sorted_map.forEach((k,v) -> string_coords.add(new Pair(k,v)));
-			//serialisation pour ajouter le radix tree dans un fichier et ne pas refaire plusieurs fois cette méthode
+			//serialisation pour ajouter le radix tree dans un fichier et ne pas refaire plusieurs fois cette mï¿½thode
 			RadixTree.createTree(string_coords).serializeTree(file+".ser") ;
 		} catch (IOException e) {
 			e.printStackTrace();

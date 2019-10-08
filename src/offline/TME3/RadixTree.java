@@ -80,25 +80,39 @@ public class RadixTree implements Serializable {
 		}
 	}
 
-	public ArrayList<Coord> search(char[] s) {
-		System.out.println("ici");
+	//recupere tous les mots matchant s en préfixe  finir cette methode et celle en dessous 
+	public ArrayList<Coord> search(char[] s, ArrayList<Coord> coords) {
 		if(s.length == 1) {
 			for(RadixTree r : list_noeuds) {
 				if(r.character == s[0]) {
-					System.out.println(r.getCharacter());
+					coords.addAll(r.getCoordsFromChilds(r,coords));
 					return r.list_coords;
 				}
 			}
-			return null;
 		}
 		for(RadixTree r : list_noeuds) {
 			if(r.character == s[0]) {
-				System.out.println(r.getCharacter());
-				return r.search(Arrays.copyOfRange(s, 1, s.length));
+				coords.addAll(r.search(Arrays.copyOfRange(s, 1, s.length),coords));
 			}
 		}
 		return null;
 	}
+//recupere les listes de coords de tous les fils : exemple : Sargon.*
+	private ArrayList<Coord> getCoordsFromChilds(RadixTree r,ArrayList<Coord> coords) {
+		if(r.isFin()) {
+			coords.addAll(r.list_coords);
+			for(RadixTree r_child : list_noeuds) {
+				coords.addAll(r.getCoordsFromChilds(r_child,new ArrayList<>()));
+			}
+			return coords;
+		}else {
+			for(RadixTree r_child : list_noeuds) {
+				coords.addAll(r.getCoordsFromChilds(r_child,new ArrayList<>()));
+			}
+			return coords;
+		}
+	}
+
 
 	public static RadixTree createTree(ArrayList<Pair> string_coords) {
 		RadixTree root = new RadixTree('.', null);
@@ -114,16 +128,16 @@ public class RadixTree implements Serializable {
 		out.writeObject(this);
 		out.close();
 		fichier.close();
-		System.out.println("Arbre serialis� au nom " + filename);
+		System.out.println("Arbre serialisé au nom " + filename);
 	}
 
 	public static RadixTree unSerializeTree(String filename) throws IOException, ClassNotFoundException {
-        FileInputStream fichier = new FileInputStream(filename);
-        ObjectInputStream ois = new ObjectInputStream(fichier);
-        RadixTree radix = (RadixTree) ois.readObject();
-        ois.close();
-        fichier.close();
-        return radix;
+		FileInputStream fichier = new FileInputStream(filename);
+		ObjectInputStream ois = new ObjectInputStream(fichier);
+		RadixTree radix = (RadixTree) ois.readObject();
+		ois.close();
+		fichier.close();
+		return radix;
 	}
 
 }
