@@ -99,7 +99,8 @@ public class RadixTree implements Serializable {
 		}
 		return coords;
 	}
-//recupere les listes de coords de tous les fils : exemple : Sargon.*
+	
+	//recupere les listes de coords de tous les fils : exemple : Sargon.*
 	private ArrayList<Coord> getCoordsFromChilds(ArrayList<Coord> coords) {
 		if(this.isFin()) {
 			coords.addAll(this.list_coords);
@@ -114,7 +115,6 @@ public class RadixTree implements Serializable {
 			return coords;
 		}
 	}
-
 
 	public static RadixTree createTree(ArrayList<Pair> string_coords) {
 		RadixTree root = new RadixTree('.', null);
