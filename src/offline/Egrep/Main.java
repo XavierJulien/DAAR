@@ -14,6 +14,9 @@ import offline.TME3.RadixTree;
 
 public class Main {
 
+	public static final String ANSI_BRIGHT_YELLOW = "\u001B[93m";
+	public static final String ANSI_BLACK  = "\u001B[30m";
+	
 	public static int chooseAlgo(String facteur) {
 		int algo = 3;//par defaut
 		if(facteur.matches("[a-zA-Z-']*")) algo = 2;
@@ -50,7 +53,7 @@ public class Main {
 			args[1] = fichier;
 			try {
 				RadixTree tree = (RadixTree)RadixTree.unSerializeTree(fichier+".ser");
-				ArrayList<Coord> coord_regex = tree.search(regEx.toLowerCase().toCharArray());
+				ArrayList<Coord> coord_regex = tree.search(regEx.toLowerCase().toCharArray(), new ArrayList<>());
 				System.out.println(coord_regex.size());
 				System.out.println("  >> egrep \""+regEx+"\" "+fichier+" \n");
 				BufferedReader br = new BufferedReader(new FileReader(new File(fichier)));
@@ -61,21 +64,11 @@ public class Main {
 				}
 				br.close();
 				for(Coord c : coord_regex) {
+					String s = "";
+					s+=text.get(c.getA()-1).substring(0, c.getB());
+					s+=ANSI_BRIGHT_YELLOW+text.get(c.getA()-1).substring(c.getB(),c.
 					System.out.println(text.get(c.getA()-1));
 				}
-				/*int current_line = 0;
-				while ((line = br.readLine()) != null) {
-					for(int i =0;i<coord_regex.size();i++) {
-						if(coord_regex.get(i).getA() == current_line) {
-							//System.out.println(current_line);
-							System.out.println(line);
-							coord_regex.remove(i);
-							current_line++;
-							break;
-						}
-					}
-					current_line++;
-				}*/
 				//Matching.main(args);
 				
 			} catch (ClassNotFoundException e) {
@@ -96,6 +89,6 @@ public class Main {
 		}
 		//run("S(a|g|r)*on","src/offline/vol2.txt");
 		run("Sargon","src/offline/vol2.txt");
-		//run("S(a|g|r)*on","vol2.txt");
+		//run("mimm","src/offline/test.txt");
 	}
 }

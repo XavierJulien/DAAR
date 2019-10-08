@@ -23,7 +23,7 @@ public class TestIndexing {
 			System.out.println(r.isFin());
 			System.out.println(r.getList_coords());
 		}*/
-		System.out.println(tree.search("Sargon".toLowerCase().toCharArray()));
+		System.out.println(tree.search("Sargon".toLowerCase().toCharArray(),new ArrayList<>()).size());
 	}
 
 }

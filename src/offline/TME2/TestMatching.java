@@ -15,7 +15,8 @@ public class TestMatching {
 		char[] regEx = scanner.next().toCharArray();
 		scanner.close();
 		int[] retenue = Matching.genRetenue(regEx);
-		File f = new File("vol1.txt");
+		for(int i = 0;i<retenue.length;i++) System.out.println(retenue[i]);
+		File f = new File("src/offline/test.txt");
 		ArrayList<String> lines_ok = new ArrayList<String>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(f));

@@ -17,10 +17,10 @@ public class TestRadixTree {
 		
 		ArrayList<Pair> string_coords= new ArrayList<Pair>();
 		string_coords.add(new Pair("ara",coords1));
-		string_coords.add(new Pair("arb",coords2));
+		string_coords.add(new Pair("arak",coords2));
 		RadixTree root = RadixTree.createTree(string_coords);
 		String s2 = "ara";
-		System.out.println(root.search(s2.toCharArray()));
+		System.out.println(root.search(s2.toCharArray(),new ArrayList<>()).size());
 		
 	}
 }

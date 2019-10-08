@@ -85,29 +85,31 @@ public class RadixTree implements Serializable {
 		if(s.length == 1) {
 			for(RadixTree r : list_noeuds) {
 				if(r.character == s[0]) {
-					coords.addAll(r.getCoordsFromChilds(r,coords));
-					return r.list_coords;
+					coords.addAll(r.list_coords);
+					for(RadixTree r_child : r.list_noeuds)
+						coords.addAll(r_child.getCoordsFromChilds(new ArrayList<>()));
+					return coords;
 				}
 			}
 		}
 		for(RadixTree r : list_noeuds) {
 			if(r.character == s[0]) {
-				coords.addAll(r.search(Arrays.copyOfRange(s, 1, s.length),coords));
+				r.search(Arrays.copyOfRange(s, 1, s.length),coords);
 			}
 		}
-		return null;
+		return coords;
 	}
 //recupere les listes de coords de tous les fils : exemple : Sargon.*
-	private ArrayList<Coord> getCoordsFromChilds(RadixTree r,ArrayList<Coord> coords) {
-		if(r.isFin()) {
-			coords.addAll(r.list_coords);
+	private ArrayList<Coord> getCoordsFromChilds(ArrayList<Coord> coords) {
+		if(this.isFin()) {
+			coords.addAll(this.list_coords);
 			for(RadixTree r_child : list_noeuds) {
-				coords.addAll(r.getCoordsFromChilds(r_child,new ArrayList<>()));
+				coords.addAll(r_child.getCoordsFromChilds(new ArrayList<>()));
 			}
 			return coords;
 		}else {
 			for(RadixTree r_child : list_noeuds) {
-				coords.addAll(r.getCoordsFromChilds(r_child,new ArrayList<>()));
+				coords.addAll(r_child.getCoordsFromChilds(new ArrayList<>()));
 			}
 			return coords;
 		}
