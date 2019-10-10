@@ -459,45 +459,27 @@ public class Automate {
 		HashMap<String, Integer> mapping_inverse = new HashMap<>();
 	
 		// calcul de la nouvelle table de transition
-		ArrayList<Integer> newStates = new ArrayList<>();
-		String update = ensembles[0];
-		int cpt = 0;
-		newStates.add(cpt);
-		cpt++;
-		for(int i = 1;i<ensembles.length;i++) {
-			if(update.equals(ensembles[i])) {
-				continue;
-			}
-			newStates.add(cpt);
-			cpt++;
-			update = ensembles[i];
-		}
-		
-		for(Integer num_etat : newStates) {
-			
-		}
+		ArrayList<String> newStatesName = new ArrayList<>();
+		ArrayList<Integer> newStatesOldNb = new ArrayList<>();
 		
 		for (String key : map_fini.keySet()) {
 			Integer state = map_fini.get(key).get(0);
-			mapping_inverse.put(key, state);
-			newStates.add(state);
+			newStatesName.add(ensembles[state]);
+			newStatesOldNb.add(state);
 		}
-		Integer[][] newTransitions = new Integer[newStates.size()][256];
-		boolean[] tab_init = new boolean[newStates.size()];
-		boolean[] tab_fin = new boolean[newStates.size()];
-		for (int i=0; i<newStates.size(); i++) {
-			int state = newStates.get(i);
+		Integer[][] newTransitions = new Integer[ensEtatDestination.length][256];
+		boolean[] tab_init = new boolean[newStatesName.size()];
+		boolean[] tab_fin = new boolean[newStatesName.size()];
+		for (int i=0; i<ensEtatDestination.length; i++) {
 			for (int j=0; j<256; j++) {
-				if (transitions[state][j] == -1)
-					newTransitions[state][j] = -1;
-				else
-					newTransitions[state][j] = mapping_inverse.get(ensEtatDestination[state][j]);
+				newTransitions[i][j] = newStatesName.indexOf(ensEtatDestination[i][j]);
 			}
-			System.out.println("etat "+state);
-			tab_init[state] = pre.tab_init[state];
-			tab_fin[state] = pre.tab_fin[state];
-			//System.out.println(Arrays.toString(newTransitions[state]));
+			tab_init[i] = pre.tab_init[newStatesOldNb.get(i)];
+			tab_fin[i] = pre.tab_fin[newStatesOldNb.get(i)];
+			System.out.println(Arrays.toString(newTransitions[i]));
 		}
+		
+		
 		
 		//gestion des etats finaux et non finaux done egalement
 
