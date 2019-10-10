@@ -27,8 +27,10 @@ public class Automate {
 		return tab_init;
 	}
 	
+	
+	
 	//constructeur d'un automate simple (basis)
-	public Automate(RegExTree input) {
+	public Automate() {
 		this.einitial = 0;
 		this.efinal = 1;
 		this.transitions = new Integer[2][256]; 
@@ -99,6 +101,7 @@ public class Automate {
 
 	public static Automate getAutomate(RegExTree input) {
 		switch(input.root) {
+			case RegEx.DOT : return applyDot();
 			case RegEx.ETOILE : return applyEtoile(input.subTrees.get(0));
 			case RegEx.CONCAT : return applyConcat(input.subTrees.get(0),input.subTrees.get(1));
 			case RegEx.ALTERN : return applyAltern(input.subTrees.get(0),input.subTrees.get(1));
@@ -106,7 +109,7 @@ public class Automate {
 		}
 	}
 	
-	
+
 	public static void addEpsilonTransition(ArrayList<ArrayList<Integer>> tab, int src, int dest) {
 		//ici modification directement sur ce qui est passé en paramètre 
 		tab.get(src).add(dest);
@@ -127,11 +130,19 @@ public class Automate {
 	}
 	
 	public static Automate applyBasis(RegExTree input) {
-		Automate res = new Automate(input);
+		Automate res = new Automate();
 		res.addTransition(input.root,0,1);
 		return res;
 	}
 
+	
+	public static Automate applyDot() {
+		Automate res = new Automate();
+		for (int i=0; i<256; i++)
+			res.addTransition(i, 0, 1);
+		return res;
+	}
+	
 	public static Automate applyAltern(RegExTree regExTree, RegExTree regExTree2) {
 		Automate gauche = getAutomate(regExTree);
 		Automate droite = getAutomate(regExTree2);
@@ -367,7 +378,135 @@ public class Automate {
 	}
 	
 	public static Automate getMinimisation(Automate automate) {
+		
 		Automate pre = preProcess(automate);
+		
+		Integer[][] transitions = pre.transitions;
+		HashMap<String, ArrayList<Integer>> map_nom_etats = new HashMap<>();
+		
+		HashMap<String, ArrayList<Integer>> map_a_traiter = new HashMap<>();
+		HashMap<String, ArrayList<Integer>> map_fini = new HashMap<>();
+		
+		String[][] ensEtatDestination = new String[pre.transitions.length][256];
+		String[] ensembles = new String[pre.transitions.length];
+		
+		//initialisation des ensembles
+		ArrayList<Integer> ens_etats_non_finaux = new ArrayList<>();
+		ArrayList<Integer> ens_etats_finaux = new ArrayList<>();
+		for (int i=0;i<transitions.length;i++) {
+			if (pre.tab_fin[i]) {
+				ensembles[i] = "B";
+				ens_etats_finaux.add(i);
+			}else { 
+				ensembles[i] = "A";
+				ens_etats_non_finaux.add(i);
+			}
+		}
+		map_nom_etats.put("A",ens_etats_non_finaux);
+		map_nom_etats.put("B",ens_etats_finaux);
+		
+		
+		//calcul des ensembles destinations
+		for (int i = 0; i < ensEtatDestination.length; i++) {
+			for (int j = 0; j < 256; j++) {
+				int destination = transitions[i][j];
+				if (destination == -1)
+					ensEtatDestination[i][j] = "A";
+				else
+					ensEtatDestination[i][j] = ensembles[destination];
+			}
+		}
+		
+		//itération pour atteindre point fixe
+		while (!map_nom_etats.isEmpty()) {
+			map_a_traiter.clear();
+			for (String nom : map_nom_etats.keySet()) {
+				ArrayList<Integer> cibles = map_nom_etats.get(nom);
+				if (cibles.size() == 1) //plus de partition possible : singleton
+					map_fini.put(nom, cibles);
+				HashMap<String, ArrayList<Integer>> partition = getPartitions(nom, map_nom_etats.get(nom), ensEtatDestination);
+				if (partition.size() == 1) 
+					map_fini.putAll(partition);
+				else {
+					map_a_traiter.putAll(partition);
+				}					
+			}
+			//update des ensembles :
+			for (String nom : map_fini.keySet()) {
+				//System.out.println("nom "+ nom);
+				map_fini.get(nom).forEach(etat -> ensembles[etat]=nom);
+			}
+			for (String nom : map_a_traiter.keySet()) {
+				//System.out.println("nom : "+nom);
+				map_a_traiter.get(nom).forEach(etat -> ensembles[etat]=nom);
+			}
+			
+			//update des ensEtatsDestination
+			for (int i = 0; i < ensEtatDestination.length; i++) {
+				for (int j = 0; j < 256; j++) {
+					int destination = transitions[i][j];
+					if (destination != -1 )
+						ensEtatDestination[i][j] = ensembles[destination];
+				}
+			}
+				
+			map_nom_etats.clear();
+			map_nom_etats.putAll(map_a_traiter);
+		}
+			
+		// à la sortie du while le processus de partitionnement est terminé
+		// mapping de état vers l'ensemble
+		HashMap<String, Integer> mapping_inverse = new HashMap<>();
+	
+		// calcul de la nouvelle table de transition
+		ArrayList<Integer> newStates = new ArrayList<>();
+		String update = ensembles[0];
+		int cpt = 0;
+		newStates.add(cpt);
+		cpt++;
+		for(int i = 1;i<ensembles.length;i++) {
+			if(update.equals(ensembles[i])) {
+				continue;
+			}
+			newStates.add(cpt);
+			cpt++;
+			update = ensembles[i];
+		}
+		
+		for(Integer num_etat : newStates) {
+			
+		}
+		
+		for (String key : map_fini.keySet()) {
+			Integer state = map_fini.get(key).get(0);
+			mapping_inverse.put(key, state);
+			newStates.add(state);
+		}
+		Integer[][] newTransitions = new Integer[newStates.size()][256];
+		boolean[] tab_init = new boolean[newStates.size()];
+		boolean[] tab_fin = new boolean[newStates.size()];
+		for (int i=0; i<newStates.size(); i++) {
+			int state = newStates.get(i);
+			for (int j=0; j<256; j++) {
+				if (transitions[state][j] == -1)
+					newTransitions[state][j] = -1;
+				else
+					newTransitions[state][j] = mapping_inverse.get(ensEtatDestination[state][j]);
+			}
+			System.out.println("etat "+state);
+			tab_init[state] = pre.tab_init[state];
+			tab_fin[state] = pre.tab_fin[state];
+			//System.out.println(Arrays.toString(newTransitions[state]));
+		}
+		
+		//gestion des etats finaux et non finaux done egalement
+
+		Automate res = new Automate(newTransitions, tab_init, tab_fin);
+		System.out.println("Dans getMinimisation : ");
+		System.out.println("Automate de pre :\n"+ pre.toString());
+	
+		System.out.println("Automate de res :\n" + res.toString());
+		
 		return pre;
 	}
 
@@ -389,8 +528,9 @@ public class Automate {
 		}
 		
 		Integer[][] newTransitions = new Integer[newStates.size()][256];
-		//Integer[] newTransition = new Integer[256];
-		
+		boolean[] tab_init = new boolean[newStates.size()];
+		boolean[] tab_fin = new boolean[newStates.size()];
+ 		
 		Map<Integer,Integer> map_old_new = new HashMap<>();
 		for (int i=0;i<newStates.size();i++) {
 			ArrayList<Integer> etatsSimilaires = newStates.get(i);
@@ -400,18 +540,22 @@ public class Automate {
 		}
 		
 		for (int k=0;k<newStates.size();k++) {
-			ArrayList<Integer> a = newStates.get(k);
-			int etatQuiReste = a.get(0);
-			Integer[] newTransi = transitions[etatQuiReste].clone();
-			for (int i=0;i<newTransi.length;i++) {
-				int etat = newTransi[i];
-				newTransi[i] = map_old_new.get(etat);
+			ArrayList<Integer> etatsSimilaires = newStates.get(k);
+			int etatQuiReste = etatsSimilaires.get(0);
+			Integer[] newTransi = new Integer[256];
+			for (int i=0;i<transitions[0].length;i++) {
+				int etat = transitions[etatQuiReste][i];
+				if (etat == -1)
+					newTransi[i] = -1;
+				else
+					newTransi[i] = map_old_new.get(etat);
 			}
 			newTransitions[k] = newTransi;
+			tab_init[k] = automate.tab_init[etatQuiReste];
+			tab_fin[k] = automate.tab_fin[etatQuiReste];
+			
 		}
-		
-		//Transitions est updated, reste a update la table de boolean initstate et finstate etc .
-		return null;
+		return new Automate(newTransitions, tab_init, tab_fin);
 	}
 	
 	private static ArrayList<Integer> getSimilarIndex(Integer[] etatA, Integer[][] transitions, int etatCourant) {
@@ -435,6 +579,51 @@ public class Automate {
 			}
 		}
 		return true;
+	}
+	
+	public static boolean isEqual(String[] a, String[]b) {
+		if (a.length!=b.length) return false;
+		
+		for(int i=0;i<a.length;i++) {
+			if (a[i]!=b[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	
+	//retourne l'indice des lignes identiques, dans une arraylist d'ensemble
+	public static HashMap<String, ArrayList<Integer>> getPartitions(String name, ArrayList<Integer> etats, String[][] ensEtatDestination) {
+		int nbEtats = etats.size();
+		int cpt = 1;
+		HashMap<String, ArrayList<Integer>> res = new HashMap<>();
+		ArrayList<Integer> same = new ArrayList<>();
+		boolean[] treated = new boolean[nbEtats];
+		Arrays.fill(treated, false);
+		for (int i=0; i<nbEtats; i++) {
+			int etat = etats.get(i);
+			same.clear();
+			if (!treated[i]) {
+				same.add(etat);
+				for (int j= i+1; j< nbEtats; j++) {
+					int etatCompare = etats.get(j);
+					if(isEqual(ensEtatDestination[etat], ensEtatDestination[etatCompare])) { 
+						same.add(etat);
+						treated[j] = true;
+					}
+				}
+				treated[i] = true;
+			}
+			if (same.size() == etats.size()) {//il n'y a pas de partition plus petite
+				res.put(name, same);
+				return res;
+			}
+			//System.out.println("appelle de getPartition avce "+name+" same = "+same.toString());
+			res.put(name+cpt, new ArrayList<>(same));
+			cpt++;
+		}
+		return res;
 	}
 	
 }
