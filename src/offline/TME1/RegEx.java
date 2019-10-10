@@ -3,7 +3,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 import java.lang.Exception;
-
+ 
 public class RegEx {
 	//MACROS
 	static final int CONCAT = 0xC04CA7;
