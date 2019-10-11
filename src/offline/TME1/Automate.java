@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Automate {
@@ -380,12 +381,12 @@ public class Automate {
 	public static Automate getMinimisation(Automate automate) {
 		
 		Automate pre = preProcess(automate);
-		
+		//if (true) return pre;
 		Integer[][] transitions = pre.transitions;
-		HashMap<String, ArrayList<Integer>> map_nom_etats = new HashMap<>();
+		LinkedHashMap<String, ArrayList<Integer>> map_nom_etats = new LinkedHashMap<>();
 		
-		HashMap<String, ArrayList<Integer>> map_a_traiter = new HashMap<>();
-		HashMap<String, ArrayList<Integer>> map_fini = new HashMap<>();
+		LinkedHashMap<String, ArrayList<Integer>> map_a_traiter = new LinkedHashMap<>();
+		LinkedHashMap<String, ArrayList<Integer>> map_fini = new LinkedHashMap<>();
 		
 		String[][] ensEtatDestination = new String[pre.transitions.length][256];
 		String[] ensembles = new String[pre.transitions.length];
@@ -421,14 +422,20 @@ public class Automate {
 		while (!map_nom_etats.isEmpty()) {
 			map_a_traiter.clear();
 			for (String nom : map_nom_etats.keySet()) {
+				//System.out.println("nom de la partition = "+nom);
 				ArrayList<Integer> cibles = map_nom_etats.get(nom);
-				if (cibles.size() == 1) //plus de partition possible : singleton
+				//System.out.println(cibles.size());
+				if (cibles.size() == 1) {//plus de partition possible : singleton
 					map_fini.put(nom, cibles);
+					continue;
+				}
 				HashMap<String, ArrayList<Integer>> partition = getPartitions(nom, map_nom_etats.get(nom), ensEtatDestination);
+				System.out.println("après appel de getPartitions : "+ partition);
 				if (partition.size() == 1) 
 					map_fini.putAll(partition);
 				else {
 					map_a_traiter.putAll(partition);
+					//System.out.println("dans map a traiter pour sous partition de "+nom);
 				}					
 			}
 			//update des ensembles :
@@ -453,29 +460,28 @@ public class Automate {
 			map_nom_etats.clear();
 			map_nom_etats.putAll(map_a_traiter);
 		}
-			
 		// à la sortie du while le processus de partitionnement est terminé
-		// mapping de état vers l'ensemble
-		HashMap<String, Integer> mapping_inverse = new HashMap<>();
 	
 		// calcul de la nouvelle table de transition
 		ArrayList<String> newStatesName = new ArrayList<>();
 		ArrayList<Integer> newStatesOldNb = new ArrayList<>();
 		
 		for (String key : map_fini.keySet()) {
-			Integer state = map_fini.get(key).get(0);
-			newStatesName.add(ensembles[state]);
-			newStatesOldNb.add(state);
+			//System.out.println(key+" compose de "+ map_fini.get(key));
+			Integer etatGarde = map_fini.get(key).get(0);
+			newStatesName.add(ensembles[etatGarde]);
+			newStatesOldNb.add(etatGarde);
 		}
 		Integer[][] newTransitions = new Integer[ensEtatDestination.length][256];
 		boolean[] tab_init = new boolean[newStatesName.size()];
 		boolean[] tab_fin = new boolean[newStatesName.size()];
-		for (int i=0; i<ensEtatDestination.length; i++) {
+		for (int i=0; i<newStatesName.size(); i++) {
+			int oldNb = newStatesOldNb.get(i);
 			for (int j=0; j<256; j++) {
-				newTransitions[i][j] = newStatesName.indexOf(ensEtatDestination[i][j]);
+				newTransitions[i][j] = newStatesName.indexOf(ensEtatDestination[oldNb][j]);
 			}
-			tab_init[i] = pre.tab_init[newStatesOldNb.get(i)];
-			tab_fin[i] = pre.tab_fin[newStatesOldNb.get(i)];
+			tab_init[i] = pre.tab_init[oldNb];
+			tab_fin[i] = pre.tab_fin[oldNb];
 			System.out.println(Arrays.toString(newTransitions[i]));
 		}
 		
@@ -551,7 +557,6 @@ public class Automate {
 		return res;
 	}
 
-
 	public static boolean isEqual(Integer[] a, Integer[]b) {
 		if (a.length!=b.length) return false;
 		
@@ -573,30 +578,33 @@ public class Automate {
 		}
 		return true;
 	}
-	
-	
+		
 	//retourne l'indice des lignes identiques, dans une arraylist d'ensemble
 	public static HashMap<String, ArrayList<Integer>> getPartitions(String name, ArrayList<Integer> etats, String[][] ensEtatDestination) {
 		int nbEtats = etats.size();
 		int cpt = 1;
-		HashMap<String, ArrayList<Integer>> res = new HashMap<>();
+		LinkedHashMap<String, ArrayList<Integer>> res = new LinkedHashMap<>();
 		ArrayList<Integer> same = new ArrayList<>();
 		boolean[] treated = new boolean[nbEtats];
 		Arrays.fill(treated, false);
 		for (int i=0; i<nbEtats; i++) {
-			int etat = etats.get(i);
+			System.out.println("i =" +i);
 			same.clear();
 			if (!treated[i]) {
+				int etat = etats.get(i);
 				same.add(etat);
-				for (int j= i+1; j< nbEtats; j++) {
-					int etatCompare = etats.get(j);
-					if(isEqual(ensEtatDestination[etat], ensEtatDestination[etatCompare])) { 
-						same.add(etat);
-						treated[j] = true;
+				for (int j=i+1; j< nbEtats; j++) {
+					System.out.println("j =" +j);
+					if (!treated[j]) {
+						int etatCompare = etats.get(j);
+						if(isEqual(ensEtatDestination[etat], ensEtatDestination[etatCompare])) { 
+							System.out.println("Etat "+etat+ " et etat "+etatCompare+" sont equals");
+							same.add(etatCompare);
+							treated[j] = true;
+						}
 					}
 				}
 				treated[i] = true;
-			}
 			if (same.size() == etats.size()) {//il n'y a pas de partition plus petite
 				res.put(name, same);
 				return res;
@@ -604,6 +612,7 @@ public class Automate {
 			//System.out.println("appelle de getPartition avce "+name+" same = "+same.toString());
 			res.put(name+cpt, new ArrayList<>(same));
 			cpt++;
+			}
 		}
 		return res;
 	}
