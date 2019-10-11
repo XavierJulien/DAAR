@@ -63,7 +63,7 @@ public class RegEx {
 				Automate auto_min = Automate.getMinimisation(auto_det);
 				System.out.println("  >> Automate minimisé: \n"+auto_min.toString());
 				System.out.println("  >> egrep \""+regEx+"\" "+file+" \n");
-				ArrayList<String> words = new MachineDeGuerre(auto_det).run(file);
+				ArrayList<String> words = new MachineDeGuerre(auto_det).run("src/offline/"+file);
 				String res = "";
 				for(String s : words) {
 					res += s+"\n";
@@ -91,7 +91,14 @@ public class RegEx {
 		//END DEBUG
 
 		ArrayList<RegExTree> result = new ArrayList<RegExTree>();
-		for (int i=0;i<regEx.length();i++) result.add(new RegExTree(charToRoot(regEx.charAt(i)),new ArrayList<RegExTree>()));
+		for (int i=0;i<regEx.length();i++) {
+			char c = regEx.charAt(i);
+			if (c == '\\') {
+				result.add(new RegExTree((int)regEx.charAt(i+1), new ArrayList<>()));
+				//System.out.println("Dans le if reconnaissance du backslash");
+			}else 
+				result.add(new RegExTree(charToRoot(c),new ArrayList<RegExTree>()));
+		}
 
 		return parse(result);
 	}

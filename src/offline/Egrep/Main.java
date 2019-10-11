@@ -48,7 +48,7 @@ public class Main {
 			Matching.main(args);
 		}
 		if(algo == 1) {
-			//Pour UTILISER LA SERIALISATION, Changer l'init du tree par la méthode unserializeTree et décommenter la clause catch en bas
+			//Pour UTILISER LA SERIALISATION, Changer l'init du tree par la mï¿½thode unserializeTree et dï¿½commenter la clause catch en bas
 			System.out.println("Utilisation du RadixTree");
 			try {
 				//RadixTree tree = (RadixTree)RadixTree.unSerializeTree("src/offline/"+fichier+".ser");
@@ -60,7 +60,7 @@ public class Main {
 				String line;
 				while ((line = br.readLine()) != null) text.add(line);
 				br.close();
-				//colorisation du texte et affichage des lignes matchés dans le terminal
+				//colorisation du texte et affichage des lignes matchï¿½s dans le terminal
 				for(Coord c : coord_regex) {
 					String s = "";
 					s+=text.get(c.getA()-1).substring(0, c.getB());
@@ -74,14 +74,14 @@ public class Main {
 
 	public static void main(String[] args) {
 		Scanner scanner = new Scanner(System.in);
-		System.out.print("  >> Please enter a file: ");
-		String file = scanner.next();
 		System.out.print("  >> Please enter a regEx: ");
 		String regEx = scanner.next();
+		System.out.print("  >> Please enter a file: ");
+		String file = scanner.next();
 		scanner.close();
 		File file_ser = new File("src/offline/"+file+".ser");
 		if(!file_ser.exists()) {
-			System.out.println("on applique le pré processing de radix tree");
+			System.out.println("on applique le prï¿½ processing de radix tree");
 			Indexing.runIndexing(new File("src/offline/"+file));
 		}
 		if(file_ser.exists()) {
@@ -89,7 +89,7 @@ public class Main {
 		}
 		run(regEx,file);
 		
-		//tests à la main
+		//tests ï¿½ la main
 		//run("S(a|g|r)*on","src/offline/vol2.txt");
 		//run("Sargonids--","vol2.txt");
 		//run("mimm","src/offline/test.txt");

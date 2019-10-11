@@ -49,7 +49,7 @@ public class MachineDeGuerre {
 			if(!start_parcours) {
 				for(int i = 0;i<transis[current_state].length;i++) {
 					if(transis[current_state][i] != -1) {
-						if((int)(word_list[current_letter]) == i) {//si notre lettre courant est �gale � la position 
+						if((int)(word_list[current_letter]) == i || i == 256) {//si notre lettre courant est �gale � la position 
 							start_parcours = true;
 							current_state = transis[current_state][i];
 						}
@@ -61,8 +61,16 @@ public class MachineDeGuerre {
 				//on as passé le premier etat dans l'automate car on as trouvé une lettre qui match le premier pattern, on fait la suite de l'automate
 				boolean suite = false; // permet de savoir si on as trouv� la lettre correspondante dans l'une des possibilit� de de l'etat courant
 				for(int i = 0;i<transis[current_state].length;i++) {
-					if(transis[current_state][i] != -1) {
-						if((int)(word_list[current_letter]) == i) {//si notre lettre courant est �gale � la position 
+					if(i == 256) {
+						if(transis[current_state][i] != -1) {
+							suite = true;
+							current_state = transis[current_state][i];
+							break;
+						}
+					}
+
+					if((int)(word_list[current_letter]) == i) {//si notre lettre courant est �gale � la position 
+						if(transis[current_state][i] != -1) {
 							suite = true;
 							current_state = transis[current_state][i];
 							break;

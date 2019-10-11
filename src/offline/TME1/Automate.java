@@ -34,7 +34,7 @@ public class Automate {
 	public Automate() {
 		this.einitial = 0;
 		this.efinal = 1;
-		this.transitions = new Integer[2][256]; 
+		this.transitions = new Integer[2][257]; 
 		this.epsilon_transi = new ArrayList<>();
 		this.tab_init = new boolean[2];
 		this.tab_fin = new boolean[2];
@@ -43,7 +43,7 @@ public class Automate {
 	}
 	
 	public Automate(int nbEtat) {
-		this.transitions = new Integer[nbEtat][256];
+		this.transitions = new Integer[nbEtat][257];
 		this.epsilon_transi = new ArrayList<>();
 		this.tab_init = new boolean[nbEtat];
 		this.tab_fin = new boolean[nbEtat];
@@ -61,7 +61,7 @@ public class Automate {
 	
 	private void initializeTransitions(int nbEtat) {
 		for (int i=0;i<nbEtat;i++) {
-			for (int j=0;j<256;j++) {
+			for (int j=0;j<257;j++) {
 				transitions[i][j] = -1;
 			}
 		}
@@ -102,7 +102,7 @@ public class Automate {
 
 	public static Automate getAutomate(RegExTree input) {
 		switch(input.root) {
-			case RegEx.DOT : return applyDot();
+			case RegEx.DOT : return applyBasisBis(256);
 			case RegEx.ETOILE : return applyEtoile(input.subTrees.get(0));
 			case RegEx.CONCAT : return applyConcat(input.subTrees.get(0),input.subTrees.get(1));
 			case RegEx.ALTERN : return applyAltern(input.subTrees.get(0),input.subTrees.get(1));
@@ -110,6 +110,12 @@ public class Automate {
 		}
 	}
 	
+
+	public static Automate applyBasisBis(int i) {
+		Automate res = new Automate();
+		res.addTransition(i,0,1);
+		return res;
+	}
 
 	public static void addEpsilonTransition(ArrayList<ArrayList<Integer>> tab, int src, int dest) {
 		//ici modification directement sur ce qui est passé en paramètre 
@@ -137,13 +143,6 @@ public class Automate {
 	}
 
 	
-	public static Automate applyDot() {
-		Automate res = new Automate();
-		for (int i=0; i<256; i++)
-			res.addTransition(i, 0, 1);
-		return res;
-	}
-	
 	public static Automate applyAltern(RegExTree regExTree, RegExTree regExTree2) {
 		Automate gauche = getAutomate(regExTree);
 		Automate droite = getAutomate(regExTree2);
@@ -156,7 +155,7 @@ public class Automate {
 		
 		//copie de l'automate gauche 
 		for (int i=0;i<nbG;i++) {
-			for (int j=0;j<256;j++) {
+			for (int j=0;j<257;j++) {
 				if (gauche.transitions[i][j] != -1)
 					ret.transitions[i+1][j] = gauche.transitions[i][j]+1;
 			}
@@ -168,7 +167,7 @@ public class Automate {
 		}
 		//copie de l'automate droit -> attention à prendre en compte le décalage
 		for (int i=0;i<nbD;i++) {
-			for (int j=0;j<256;j++) {
+			for (int j=0;j<257;j++) {
 				if (droite.transitions[i][j] != -1)
 					ret.transitions[i+nbG+2][j] = droite.transitions[i][j]+nbG+2;
 			}
@@ -196,14 +195,14 @@ public class Automate {
 
 		//copie de l'automate gauche 
 		for (int i=0;i<nbG;i++) {
-			for (int j=0;j<256;j++) {
+			for (int j=0;j<257;j++) {
 				ret.transitions[i][j] = gauche.transitions[i][j];
 			}
 			ret.epsilon_transi.set(i, gauche.epsilon_transi.get(i));
 		}
 		//copie de l'automate droit -> attention à prendre en compte le décalage
 		for (int i=0;i<nbD;i++) {
-			for (int j=0;j<256;j++) {
+			for (int j=0;j<257;j++) {
 				if(droite.transitions[i][j]!=-1)
 					ret.transitions[i+nbG][j] = droite.transitions[i][j]+nbG;
 			}
@@ -227,7 +226,7 @@ public class Automate {
 		Automate ret = new Automate(newNb);
 		//copie des anciennes transitions
 		for (int i=0;i<newNb-2;i++) {
-			for (int j=0;j<256;j++) {
+			for (int j=0;j<257;j++) {
 				if(automate.transitions[i][j]!=-1)
 					ret.transitions[i+1][j] = automate.transitions[i][j]+1;
 			}
@@ -292,8 +291,8 @@ public class Automate {
 	@SuppressWarnings("unchecked")
 	public static Automate getDeterminisation(Automate auto) {
 		ArrayList<HashSet<Integer>> newStates = new ArrayList<>();
-		HashSet<Integer>[] reachables = new HashSet[256];
-		int[] transi_uneligne = new int[256];
+		HashSet<Integer>[] reachables = new HashSet[257];
+		int[] transi_uneligne = new int[257];
 		int cpt = 0;
 		boolean done = false;
 		ArrayList<int[]> transi = new ArrayList<>();
@@ -310,11 +309,11 @@ public class Automate {
 		
 		while (!done) {
 			//réinitialisations des outils
-			reachables = new HashSet[256];
+			reachables = new HashSet[257];
 			Arrays.fill(transi_uneligne, -1);
 			//exploration des états atteignables depuis newstates suivant la transition
 			for (Integer fromState : newStates.get(cpt)) {
-				for (int j=0; j<256; j++) {
+				for (int j=0; j<257; j++) {
 					Integer toState = auto.transitions[fromState][j];
 					if (toState != -1) {
 						if (reachables[j] == null) {
@@ -328,7 +327,7 @@ public class Automate {
 			}
 			//sur le tableau de determinisation = une ligne de faite
 			//ajout des prochaines étapes d'exploration (cad les newStates) et ajout des vrais transitions pour le nouvel automate
-			for (int j=0; j<256; j++) {
+			for (int j=0; j<257; j++) {
 				if (reachables[j] != null) {
 					if (!newStates.contains(reachables[j])) { //si l'état n'existe pas encore dans les newStates
 						newStates.add(reachables[j]);
@@ -344,11 +343,11 @@ public class Automate {
 				done = true;
 		}
 		//newStates et transi sont de la même taille normalement 
-		transitions = new Integer[transi.size()][256];
+		transitions = new Integer[transi.size()][257];
 		tab_init = new boolean[transi.size()];
 		tab_fin = new boolean[transi.size()];
 		for (int i=0; i<transi.size();i++) {
-			for (int j=0; j<256; j++) {
+			for (int j=0; j<257; j++) {
 				transitions[i][j] = transi.get(i)[j];
 			}
 			//pour les tableaux des états initial et final
@@ -388,7 +387,7 @@ public class Automate {
 		LinkedHashMap<String, ArrayList<Integer>> map_a_traiter = new LinkedHashMap<>();
 		LinkedHashMap<String, ArrayList<Integer>> map_fini = new LinkedHashMap<>();
 		
-		String[][] ensEtatDestination = new String[pre.transitions.length][256];
+		String[][] ensEtatDestination = new String[pre.transitions.length][257];
 		String[] ensembles = new String[pre.transitions.length];
 		
 		//initialisation des ensembles
@@ -409,7 +408,7 @@ public class Automate {
 		
 		//calcul des ensembles destinations
 		for (int i = 0; i < ensEtatDestination.length; i++) {
-			for (int j = 0; j < 256; j++) {
+			for (int j = 0; j < 257; j++) {
 				int destination = transitions[i][j];
 				if (destination == -1)
 					ensEtatDestination[i][j] = "A";
@@ -430,7 +429,7 @@ public class Automate {
 					continue;
 				}
 				HashMap<String, ArrayList<Integer>> partition = getPartitions(nom, map_nom_etats.get(nom), ensEtatDestination);
-				System.out.println("après appel de getPartitions : "+ partition);
+				//System.out.println("après appel de getPartitions : "+ partition);
 				if (partition.size() == 1) 
 					map_fini.putAll(partition);
 				else {
@@ -450,7 +449,7 @@ public class Automate {
 			
 			//update des ensEtatsDestination
 			for (int i = 0; i < ensEtatDestination.length; i++) {
-				for (int j = 0; j < 256; j++) {
+				for (int j = 0; j < 257; j++) {
 					int destination = transitions[i][j];
 					if (destination != -1 )
 						ensEtatDestination[i][j] = ensembles[destination];
@@ -472,17 +471,17 @@ public class Automate {
 			newStatesName.add(ensembles[etatGarde]);
 			newStatesOldNb.add(etatGarde);
 		}
-		Integer[][] newTransitions = new Integer[ensEtatDestination.length][256];
+		Integer[][] newTransitions = new Integer[ensEtatDestination.length][257];
 		boolean[] tab_init = new boolean[newStatesName.size()];
 		boolean[] tab_fin = new boolean[newStatesName.size()];
 		for (int i=0; i<newStatesName.size(); i++) {
 			int oldNb = newStatesOldNb.get(i);
-			for (int j=0; j<256; j++) {
+			for (int j=0; j<257; j++) {
 				newTransitions[i][j] = newStatesName.indexOf(ensEtatDestination[oldNb][j]);
 			}
 			tab_init[i] = pre.tab_init[oldNb];
 			tab_fin[i] = pre.tab_fin[oldNb];
-			System.out.println(Arrays.toString(newTransitions[i]));
+			//System.out.println(Arrays.toString(newTransitions[i]));
 		}
 		
 		
@@ -490,12 +489,12 @@ public class Automate {
 		//gestion des etats finaux et non finaux done egalement
 
 		Automate res = new Automate(newTransitions, tab_init, tab_fin);
-		System.out.println("Dans getMinimisation : ");
-		System.out.println("Automate de pre :\n"+ pre.toString());
-	
-		System.out.println("Automate de res :\n" + res.toString());
+//		System.out.println("Dans getMinimisation : ");
+//		System.out.println("Automate de pre :\n"+ pre.toString());
+//	
+//		System.out.println("Automate de res :\n" + res.toString());
 		
-		return pre;
+		return res;
 	}
 
 	public static Automate preProcess(Automate automate) {
@@ -515,7 +514,7 @@ public class Automate {
 			newStates.add(similar);
 		}
 		
-		Integer[][] newTransitions = new Integer[newStates.size()][256];
+		Integer[][] newTransitions = new Integer[newStates.size()][257];
 		boolean[] tab_init = new boolean[newStates.size()];
 		boolean[] tab_fin = new boolean[newStates.size()];
  		
@@ -530,7 +529,7 @@ public class Automate {
 		for (int k=0;k<newStates.size();k++) {
 			ArrayList<Integer> etatsSimilaires = newStates.get(k);
 			int etatQuiReste = etatsSimilaires.get(0);
-			Integer[] newTransi = new Integer[256];
+			Integer[] newTransi = new Integer[257];
 			for (int i=0;i<transitions[0].length;i++) {
 				int etat = transitions[etatQuiReste][i];
 				if (etat == -1)
