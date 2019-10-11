@@ -421,29 +421,23 @@ public class Automate {
 		while (!map_nom_etats.isEmpty()) {
 			map_a_traiter.clear();
 			for (String nom : map_nom_etats.keySet()) {
-				//System.out.println("nom de la partition = "+nom);
 				ArrayList<Integer> cibles = map_nom_etats.get(nom);
-				//System.out.println(cibles.size());
 				if (cibles.size() == 1) {//plus de partition possible : singleton
 					map_fini.put(nom, cibles);
 					continue;
 				}
 				HashMap<String, ArrayList<Integer>> partition = getPartitions(nom, map_nom_etats.get(nom), ensEtatDestination);
-				//System.out.println("après appel de getPartitions : "+ partition);
 				if (partition.size() == 1) 
 					map_fini.putAll(partition);
 				else {
 					map_a_traiter.putAll(partition);
-					//System.out.println("dans map a traiter pour sous partition de "+nom);
 				}					
 			}
 			//update des ensembles :
 			for (String nom : map_fini.keySet()) {
-				//System.out.println("nom "+ nom);
 				map_fini.get(nom).forEach(etat -> ensembles[etat]=nom);
 			}
 			for (String nom : map_a_traiter.keySet()) {
-				//System.out.println("nom : "+nom);
 				map_a_traiter.get(nom).forEach(etat -> ensembles[etat]=nom);
 			}
 			
@@ -466,7 +460,6 @@ public class Automate {
 		ArrayList<Integer> newStatesOldNb = new ArrayList<>();
 		
 		for (String key : map_fini.keySet()) {
-			//System.out.println(key+" compose de "+ map_fini.get(key));
 			Integer etatGarde = map_fini.get(key).get(0);
 			newStatesName.add(ensembles[etatGarde]);
 			newStatesOldNb.add(etatGarde);
@@ -481,7 +474,6 @@ public class Automate {
 			}
 			tab_init[i] = pre.tab_init[oldNb];
 			tab_fin[i] = pre.tab_fin[oldNb];
-			//System.out.println(Arrays.toString(newTransitions[i]));
 		}
 		
 		
@@ -489,11 +481,6 @@ public class Automate {
 		//gestion des etats finaux et non finaux done egalement
 
 		Automate res = new Automate(newTransitions, tab_init, tab_fin);
-//		System.out.println("Dans getMinimisation : ");
-//		System.out.println("Automate de pre :\n"+ pre.toString());
-//	
-//		System.out.println("Automate de res :\n" + res.toString());
-		
 		return res;
 	}
 
@@ -587,17 +574,14 @@ public class Automate {
 		boolean[] treated = new boolean[nbEtats];
 		Arrays.fill(treated, false);
 		for (int i=0; i<nbEtats; i++) {
-			System.out.println("i =" +i);
 			same.clear();
 			if (!treated[i]) {
 				int etat = etats.get(i);
 				same.add(etat);
 				for (int j=i+1; j< nbEtats; j++) {
-					System.out.println("j =" +j);
 					if (!treated[j]) {
 						int etatCompare = etats.get(j);
 						if(isEqual(ensEtatDestination[etat], ensEtatDestination[etatCompare])) { 
-							System.out.println("Etat "+etat+ " et etat "+etatCompare+" sont equals");
 							same.add(etatCompare);
 							treated[j] = true;
 						}
@@ -608,7 +592,6 @@ public class Automate {
 				res.put(name, same);
 				return res;
 			}
-			//System.out.println("appelle de getPartition avce "+name+" same = "+same.toString());
 			res.put(name+cpt, new ArrayList<>(same));
 			cpt++;
 			}

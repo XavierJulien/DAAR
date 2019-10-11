@@ -14,6 +14,8 @@ public class RegEx {
 	static final int PARENTHESEOUVRANT = 0x16641664;
 	static final int PARENTHESEFERMANT = 0x51515151;
 	static final int DOT = 0xD07;
+	
+	static final int BACKSLASH_ASCII = 92;
 
 	//REGEX
 	private static String regEx;
@@ -93,11 +95,12 @@ public class RegEx {
 		ArrayList<RegExTree> result = new ArrayList<RegExTree>();
 		for (int i=0;i<regEx.length();i++) {
 			char c = regEx.charAt(i);
-			if (c == '\\') {
+			if (c == (char)BACKSLASH_ASCII) {
 				result.add(new RegExTree((int)regEx.charAt(i+1), new ArrayList<>()));
-				//System.out.println("Dans le if reconnaissance du backslash");
-			}else 
+				i++;
+			}else {
 				result.add(new RegExTree(charToRoot(c),new ArrayList<RegExTree>()));
+			}
 		}
 
 		return parse(result);
