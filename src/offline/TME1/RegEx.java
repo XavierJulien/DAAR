@@ -63,7 +63,7 @@ public class RegEx {
 				Automate auto_min = Automate.getMinimisation(auto_det);
 				System.out.println("  >> Automate minimisé: \n"+auto_min.toString());
 				System.out.println("  >> egrep \""+regEx+"\" "+file+" \n");
-				ArrayList<String> words = new MachineDeGuerre(auto_det).run("src/offline/"+file);
+				ArrayList<String> words = new MachineDeGuerre(auto_min).run("src/offline/"+file);
 				String res = "";
 				for(String s : words) {
 					res += s+"\n";

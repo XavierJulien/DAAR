@@ -8,10 +8,12 @@ import java.util.ArrayList;
 public class MachineDeGuerre {
 
 	private boolean[] tab_final;
+	private boolean[] tab_init;
 	private Integer[][] transis;
 	public MachineDeGuerre(Automate dfa) {
 		tab_final = dfa.getTab_fin();
 		transis = dfa.getTransitions();
+		this.tab_init = dfa.getTab_init();
 	}
 
 	public ArrayList<String> run(String file){
@@ -40,11 +42,13 @@ public class MachineDeGuerre {
 	}
 
 	public boolean checkWord(String word) {
-
 		char[] word_list = word.toCharArray();
 		int current_letter = 0;
 		boolean start_parcours = false;
 		int current_state = 0;
+		for(int i = 0;i<tab_init.length;i++) {
+			if(tab_init[i]) current_state = i;
+		}
 		while(current_letter <= word.length()-1) {
 			if(!start_parcours) {
 				for(int i = 0;i<transis[current_state].length;i++) {
@@ -52,6 +56,7 @@ public class MachineDeGuerre {
 						if((int)(word_list[current_letter]) == i || i == 256) {//si notre lettre courant est �gale � la position 
 							start_parcours = true;
 							current_state = transis[current_state][i];
+							break;
 						}
 					}
 				}
@@ -61,15 +66,7 @@ public class MachineDeGuerre {
 				//on as passé le premier etat dans l'automate car on as trouvé une lettre qui match le premier pattern, on fait la suite de l'automate
 				boolean suite = false; // permet de savoir si on as trouv� la lettre correspondante dans l'une des possibilit� de de l'etat courant
 				for(int i = 0;i<transis[current_state].length;i++) {
-					if(i == 256) {
-						if(transis[current_state][i] != -1) {
-							suite = true;
-							current_state = transis[current_state][i];
-							break;
-						}
-					}
-
-					if((int)(word_list[current_letter]) == i) {//si notre lettre courant est �gale � la position 
+					if((int)(word_list[current_letter]) == i || i == 256) {//si notre lettre courant est �gale � la position 
 						if(transis[current_state][i] != -1) {
 							suite = true;
 							current_state = transis[current_state][i];
@@ -86,6 +83,7 @@ public class MachineDeGuerre {
 						suite = false;
 					}
 				}else {//si on as pas trouv� de lettre pour avancer dans l'automate, on remet l'etat courant � 0 et on refait la recherche � partir de la m�me lettre
+					if(tab_final[current_state]) return true;//ajout pour le caract�re universel
 					current_state = 0;
 					start_parcours = false;
 					break;
