@@ -24,13 +24,13 @@ public class MachineDeGuerre {
 			String line;
 			while((line = br.readLine()) != null) {
 				if(line.length() != 0) {
-					String[] words = line.split(" ");
-					for(int i =0;i<words.length;i++) {
-						String word = words[i];
-						if(word.length() != 0 && checkWord(word) && !lines_ok.contains(line)) {//on check chaque mot et on verifie qu'il n'y ait pas de doublon
-							lines_ok.add(line);
-						}
+					//String[] words = line.split(" ");
+					//for(int i =0;i<words.length;i++) {
+					//String word = words[i];
+					if(line.length() != 0 && checkWord(line) && !lines_ok.contains(line)) {//on check chaque mot et on verifie qu'il n'y ait pas de doublon
+						lines_ok.add(line);
 					}
+					//}
 				}
 			}
 			br.close();
@@ -42,58 +42,6 @@ public class MachineDeGuerre {
 	}
 
 	public boolean checkWord(String word) {
-		if(word.equals("ff.).]")){
-			System.out.println("worddddddd$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-			char[] word_list = word.toCharArray();
-			int current_letter = 0;
-			boolean start_parcours = false;
-			int current_state = 0;
-			for(int i = 0;i<tab_init.length;i++) {
-				if(tab_init[i]) current_state = i;
-			}
-			while(current_letter <= word.length()-1) {
-				if(!start_parcours) {
-					for(int i = 0;i<transis[current_state].length;i++) {
-						if(transis[current_state][i] != -1) {
-							if((int)(word_list[current_letter]) == i || i == 256) {//si notre lettre courant est �gale � la position 
-								start_parcours = true;
-								current_state = transis[current_state][i];
-								break;
-							}
-						}
-					}
-					current_letter++;
-					if(!start_parcours) {continue;}
-				}else {
-					//on as passé le premier etat dans l'automate car on as trouvé une lettre qui match le premier pattern, on fait la suite de l'automate
-					boolean suite = false; // permet de savoir si on as trouv� la lettre correspondante dans l'une des possibilit� de de l'etat courant
-					for(int i = 0;i<transis[current_state].length;i++) {
-						if((int)(word_list[current_letter]) == i || i == 256) {//si notre lettre courant est �gale � la position 
-							if(transis[current_state][i] != -1) {
-								suite = true;
-								current_state = transis[current_state][i];
-								break;
-							}
-						}
-					}
-					if(suite) {//si on peut faire le prochain etat de l'automate
-						if(tab_final[current_state]) {
-							return true; //si on est tomb� sur un etat final acceptant on s'arrete
-						}else { //si on est pas encore sur le dernier etat, on continue
-							if(current_letter == word.length()) break;
-							current_letter++;
-							suite = false;
-						}
-					}else {//si on as pas trouv� de lettre pour avancer dans l'automate, on remet l'etat courant � 0 et on refait la recherche � partir de la m�me lettre
-						if(tab_final[current_state]) return true;//ajout pour le caract�re universel
-						current_state = 0;
-						start_parcours = false;
-						break;
-					}
-				}
-			}
-			return false;
-		}
 		char[] word_list = word.toCharArray();
 		int current_letter = 0;
 		boolean start_parcours = false;
@@ -136,9 +84,10 @@ public class MachineDeGuerre {
 					}
 				}else {//si on as pas trouv� de lettre pour avancer dans l'automate, on remet l'etat courant � 0 et on refait la recherche � partir de la m�me lettre
 					if(tab_final[current_state]) return true;//ajout pour le caract�re universel
-					current_state = 0;
+					for(int i = 0;i<tab_init.length;i++) {
+						if(tab_init[i]) current_state = i;
+					}
 					start_parcours = false;
-					break;
 				}
 			}
 		}
