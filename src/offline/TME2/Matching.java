@@ -9,6 +9,8 @@ import java.util.Arrays;
 
 public class Matching{
 
+	static final int BACKSLASH_ASCII = 92;
+	
 	/**
 	 * Algorithme de matching d'un mot sur un texte
 	 * @param facteur mot qu'on souhaite chercher
@@ -22,6 +24,7 @@ public class Matching{
             if(courant_facteur==facteur.length){
                 return courant_line-facteur.length;
             }
+            System.out.println(texte[courant_line]+ " "+facteur[courant_facteur]);
             if(texte[courant_line] == facteur[courant_facteur]){
                 courant_line++;
                 courant_facteur++;
@@ -95,11 +98,20 @@ public class Matching{
 
     public static void main(String args[]){
     	char[] regEx;
+    	ArrayList<Character> keep = new ArrayList<>();
     	String file;
-    	regEx = args[0].toCharArray();
+    	for(char c : args[0].toCharArray()) {
+    		if(c != (char)BACKSLASH_ASCII) {
+    			keep.add(c);
+    		}
+    	}
+    	regEx = new char[keep.size()];
+    	for(int i = 0;i<keep.size();i++) {
+    		regEx[i] = keep.get(i);
+    	}
 		file = args[1];
 		int[] retenue = genRetenue(regEx);
-		File f = new File("src/offline/"+file);
+		File f = new File("src/offline/ressources/"+file);
 		ArrayList<String> lines_ok = new ArrayList<String>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(f));
@@ -107,6 +119,7 @@ public class Matching{
 			while((line = br.readLine()) != null) {
 				if(line.length() != 0) {
 					int pos = matchingAlgo(regEx,retenue,line.toCharArray());
+					System.out.println(line);
 					if(!lines_ok.contains(line) && pos != -1) {//on check chaque mot et on verifie qu'il n'y ait pas de doublon
 						lines_ok.add(line);
 					}

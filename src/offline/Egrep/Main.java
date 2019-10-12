@@ -17,10 +17,25 @@ public class Main {
 
 	public static final String ANSI_BRIGHT_YELLOW = "\u001B[93m";
 	public static final String ANSI_RESET = "\u001B[0m";
+	static final int BACKSLASH_ASCII = 92;
 
 	public static int chooseAlgo(String facteur) {
 		int algo = 3;//par defaut
-		if(facteur.matches(".*[|()*.].*")) algo = 2;
+		char[] facteur_array = facteur.toCharArray();
+		for(int i = 0;i< facteur_array.length;i++) {
+			char c = facteur_array[i];
+			if(c == '*' || c == '|' || c == '(' || c == ')' || c == '.') {
+				if (i != 0) {
+					if(facteur_array[i-1] == ((char)BACKSLASH_ASCII)) {
+						algo = 2;
+					}else {						
+						return 3;
+					}
+				}else {
+					return 3;
+				}
+			}
+		}
 		if(facteur.matches("[a-zA-Z-']*")) {
 			if(facteur.length() <=2) {
 				algo = 2;
@@ -32,8 +47,8 @@ public class Main {
 	}
 
 	public static void run(String regEx, String fichier) {
-		//int algo = chooseAlgo(regEx);
-		int algo = 2;
+		int algo = chooseAlgo(regEx);
+		//int algo = 2;
 		if(algo == 3) {
 			System.out.println("Utilisation de la Machine de Guerre");
 			String[] args = new String[2];
@@ -60,12 +75,12 @@ public class Main {
 			System.out.println("Utilisation du RadixTree");
 			try {
 				//RadixTree tree = (RadixTree)RadixTree.unSerializeTree("src/offline/"+fichier+".ser");
-				BufferedReader br = new BufferedReader(new FileReader(new File("src/offline/"+fichier)));
+				BufferedReader br = new BufferedReader(new FileReader(new File("src/offline/ressources/"+fichier)));
 				ArrayList<String> text = new ArrayList<String>();
 				String line;
 				while ((line = br.readLine()) != null) text.add(line);
 				br.close();
-				RadixTree tree = Indexing.createRadix(new File("src/offline/"+fichier+".index"));
+				RadixTree tree = Indexing.createRadix(new File("src/offline/ressources/"+fichier+".index"));
 				Long time_before = System.currentTimeMillis();
 				ArrayList<Coord> coord_regex = tree.search(regEx.toLowerCase().toCharArray(), new ArrayList<>());
 				System.out.println(coord_regex.size());
@@ -92,20 +107,15 @@ public class Main {
 		String file = scanner.next();
 		scanner.close();
 		//File file_ser = new File("src/offline/"+file+".ser");
-		File file_index = new File("src/offline/"+file+".index");
+		File file_index = new File("src/offline/ressources/"+file+".index");
 		/*if(!file_ser.exists()) {
 			System.out.println("on applique le pr� processing de radix tree");
 			Indexing.runIndexing(new File("src/offline/"+file));
 		}*/
 		if(!file_index.exists()) {
-			Indexing.runIndexing(new File("src/offline/"+file));
+			Indexing.runIndexing(new File("src/offline/ressources/"+file));
 		}
 		
 		run(regEx,file);
-		
-		//tests � la main
-		//run("S(a|g|r)*on","src/offline/vol2.txt");
-		//run("Sargonids--","vol2.txt");
-		//run("mimm","src/offline/test.txt");
 	}
 }

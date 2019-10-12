@@ -1,5 +1,0 @@
-The.project
-algor.thm
-algo algo
-e.e
-e.p
