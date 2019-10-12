@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class Matching{
 
@@ -94,30 +93,13 @@ public class Matching{
         return "";
     }
 
-    public static void main(String arg[]){
+    public static void main(String args[]){
     	char[] regEx;
     	String file;
-    	if (arg.length == 2) {
-			regEx = arg[0].toCharArray();
-			file = arg[1];
-		} else {
-			if(arg.length == 1) {
-				regEx = arg[0].toCharArray();
-				Scanner scanner = new Scanner(System.in);
-				System.out.print("  >> Please enter a file: ");
-				file = scanner.next();
-				scanner.close();
-			}else {
-				Scanner scanner = new Scanner(System.in);
-				System.out.print("  >> Please enter a regEx: ");
-				regEx = scanner.next().toCharArray();
-				System.out.print("  >> Please enter a file: ");
-				file = scanner.next();
-				scanner.close();
-			}
-		}
+    	regEx = args[0].toCharArray();
+		file = args[1];
 		int[] retenue = genRetenue(regEx);
-		File f = new File(file);
+		File f = new File("src/offline/"+file);
 		ArrayList<String> lines_ok = new ArrayList<String>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(f));
@@ -134,7 +116,7 @@ public class Matching{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("  >> egrep \""+arg[0]+"\" "+file+" \n");
+		System.out.println("  >> egrep \""+args[0]+"\" "+file+" \n");
 		String res = "";
 		for(String s : lines_ok) {
 			res += s+"\n";
