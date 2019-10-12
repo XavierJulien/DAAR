@@ -92,20 +92,15 @@ public class Main {
 		String file = scanner.next();
 		scanner.close();
 		//File file_ser = new File("src/offline/"+file+".ser");
-		File file_index = new File("src/offline/"+file+".index");
+		File file_index = new File("src/offline/ressources/"+file+".index");
 		/*if(!file_ser.exists()) {
 			System.out.println("on applique le pr� processing de radix tree");
 			Indexing.runIndexing(new File("src/offline/"+file));
 		}*/
 		if(!file_index.exists()) {
-			Indexing.runIndexing(new File("src/offline/"+file));
+			Indexing.runIndexing(new File("src/offline/ressources/"+file));
 		}
 		
 		run(regEx,file);
-		
-		//tests � la main
-		//run("S(a|g|r)*on","src/offline/vol2.txt");
-		//run("Sargonids--","vol2.txt");
-		//run("mimm","src/offline/test.txt");
 	}
 }
