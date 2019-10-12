@@ -29,7 +29,6 @@ public class Automate {
 	}
 	
 	
-	
 	//constructeur d'un automate simple (basis)
 	public Automate() {
 		this.einitial = 0;
@@ -79,7 +78,6 @@ public class Automate {
 	/* le seule endroit ou cette fonction est appelée est dans le constructeur 1 de Automate, qui lui est seulement appelé dans applyBasis
 	 * donc pas besoin de savoir cb d'état à prévoir avec le parcours récursif, on sait qu'il y en a que 2 
 	 * */
-	//valide 
 	public int getNbEtat(RegExTree input) {
 		
 		int cpt_etats = 0;
@@ -99,7 +97,6 @@ public class Automate {
 		return automate.transitions.length; // à vérifier que ca retourne bien le nombre de ligne du tableau de transitions 
 	}
 
-
 	public static Automate getAutomate(RegExTree input) {
 		switch(input.root) {
 			case RegEx.DOT : return applyBasisBis(256);
@@ -110,7 +107,6 @@ public class Automate {
 		}
 	}
 	
-
 	public static Automate applyBasisBis(int i) {
 		Automate res = new Automate();
 		res.addTransition(i,0,1);
@@ -142,7 +138,6 @@ public class Automate {
 		return res;
 	}
 
-	
 	public static Automate applyAltern(RegExTree regExTree, RegExTree regExTree2) {
 		Automate gauche = getAutomate(regExTree);
 		Automate droite = getAutomate(regExTree2);
@@ -287,7 +282,51 @@ public class Automate {
 		return res;
 	}
 	
-	
+	public static Automate getDeterminisation2(Automate auto) {
+		ArrayList<Integer> importantStates = new ArrayList<>();
+		importantStates.add(0);
+		for (int i=0; i<auto.transitions.length; i++) {
+			for (int j=0; j<257; j++) {
+				int dest = auto.transitions[i][j];
+				if (dest != -1)
+					importantStates.add(dest);
+			}
+		}
+		
+		Integer[][] newTransitions = new Integer[importantStates.size()][257];
+		boolean[] newInit = new boolean[importantStates.size()];
+		boolean[] newFin = new boolean[importantStates.size()];
+		Arrays.fill(newInit, false);
+		Arrays.fill(newFin, false);
+		
+		for (int i=0;i<importantStates.size();i++) {
+			int fromState = importantStates.get(i);
+			HashSet<Integer> rechables = getEpsilonReachables(fromState, auto.epsilon_transi, new HashSet<>());
+			//System.out.println("Pour l'état " +fromState+" reachables = "+rechables);
+			for (int e : rechables) {
+				for(int t=0;t<257;t++) {
+					int dest_old = auto.transitions[e][t];
+					if (dest_old != -1) {
+						//System.out.println(e +" a une transition "+t+" vers "+dest_old );
+						//System.out.println("indexof "+dest_old+" = "+importantStates.indexOf(dest_old));
+						newTransitions[i][t] = importantStates.indexOf(dest_old);
+					}else {
+						if (newTransitions[i][t] == null)//jamais affecté encore
+							newTransitions[i][t] = -1;
+					}
+				}
+				if (auto.tab_init[e])
+					newInit[i] = true;
+				if (auto.tab_fin[e])
+					newFin[i] = true;
+			}
+		}
+		
+		Automate res = new Automate(newTransitions, newInit, newFin);
+		
+		return res;
+	}
+
 	@SuppressWarnings("unchecked")
 	public static Automate getDeterminisation(Automate auto) {
 		ArrayList<HashSet<Integer>> newStates = new ArrayList<>();
@@ -366,6 +405,7 @@ public class Automate {
 	
 	public static HashSet<Integer> getEpsilonReachables(int fromState, ArrayList<ArrayList<Integer>> epsilon_transi, HashSet<Integer> existings){
 		HashSet<Integer> res = new HashSet<>();
+		res.add(fromState);
 		ArrayList<Integer> dest = epsilon_transi.get(fromState);
 		if (dest.isEmpty())
 			return res;
@@ -585,7 +625,6 @@ public class Automate {
 		return true;
 	}
 		
-	//retourne l'indice des lignes identiques, dans une arraylist d'ensemble
 	public static HashMap<String, ArrayList<Integer>> getPartitions(String name, ArrayList<Integer> etats, String[][] ensEtatDestination) {
 		int nbEtats = etats.size();
 		int cpt = 1;

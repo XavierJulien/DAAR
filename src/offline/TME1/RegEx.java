@@ -60,8 +60,10 @@ public class RegEx {
 				//System.out.println("  >> Tree result: "+ret.toString()+".");
 				Automate auto = Automate.getAutomate(ret);
 				//System.out.println("  >> Automate result: \n"+auto.toString());
-				Automate auto_det = Automate.getDeterminisation(auto);
-				//System.out.println("  >> Automate d�terminis�: \n"+auto_det.toString());
+				//Automate auto_det = Automate.getDeterminisation(auto);
+				//System.out.println("  >> Automate déterminisé : \n"+auto_det.toString());
+				Automate auto_det = Automate.getDeterminisation2(auto);
+				System.out.println("  >> Automate déterminisé : \n"+auto_det.toString());
 				Automate auto_min = Automate.getMinimisation(auto_det);
 				System.out.println("  >> Automate minimisé: \n"+auto_min.toString());
 				System.out.println("  >> egrep \""+regEx+"\" "+file+" \n");
