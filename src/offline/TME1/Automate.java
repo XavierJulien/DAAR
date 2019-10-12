@@ -387,8 +387,8 @@ public class Automate {
 		LinkedHashMap<String, ArrayList<Integer>> map_a_traiter = new LinkedHashMap<>();
 		LinkedHashMap<String, ArrayList<Integer>> map_fini = new LinkedHashMap<>();
 		
-		String[][] ensEtatDestination = new String[pre.transitions.length][257];
-		String[] ensembles = new String[pre.transitions.length];
+		String[][] ensEtatDestination = new String[pre.transitions.length+1][257];
+		String[] ensembles = new String[pre.transitions.length+1];
 		
 		//initialisation des ensembles
 		ArrayList<Integer> ens_etats_non_finaux = new ArrayList<>();
@@ -402,12 +402,19 @@ public class Automate {
 				ens_etats_non_finaux.add(i);
 			}
 		}
+		ensembles[transitions.length] = "A";
+		ens_etats_non_finaux.add(transitions.length);
 		map_nom_etats.put("A",ens_etats_non_finaux);
 		map_nom_etats.put("B",ens_etats_finaux);
 		
 		
 		//calcul des ensembles destinations
 		for (int i = 0; i < ensEtatDestination.length; i++) {
+			if (i == ensEtatDestination.length-1) {
+				for (int j = 0; j < 257; j++)
+					ensEtatDestination[i][j] = "A";
+				continue;
+			}
 			for (int j = 0; j < 257; j++) {
 				int destination = transitions[i][j];
 				if (destination == -1)
@@ -443,6 +450,8 @@ public class Automate {
 			
 			//update des ensEtatsDestination
 			for (int i = 0; i < ensEtatDestination.length; i++) {
+				if (i == ensEtatDestination.length-1) 
+					continue;
 				for (int j = 0; j < 257; j++) {
 					int destination = transitions[i][j];
 					if (destination != -1 )
@@ -461,26 +470,37 @@ public class Automate {
 		
 		for (String key : map_fini.keySet()) {
 			Integer etatGarde = map_fini.get(key).get(0);
+			if (etatGarde == transitions.length) continue; 
 			newStatesName.add(ensembles[etatGarde]);
 			newStatesOldNb.add(etatGarde);
 		}
-		Integer[][] newTransitions = new Integer[ensEtatDestination.length][257];
+		Integer[][] newTransitions = new Integer[ensEtatDestination.length-1][257];
 		boolean[] tab_init = new boolean[newStatesName.size()];
 		boolean[] tab_fin = new boolean[newStatesName.size()];
+		boolean deadFound = false;
 		for (int i=0; i<newStatesName.size(); i++) {
 			int oldNb = newStatesOldNb.get(i);
-			for (int j=0; j<257; j++) {
-				newTransitions[i][j] = newStatesName.indexOf(ensEtatDestination[oldNb][j]);
+			if (oldNb == transitions.length) {
+				deadFound = true;
+				continue;
 			}
-			tab_init[i] = pre.tab_init[oldNb];
-			tab_fin[i] = pre.tab_fin[oldNb];
+			int etat = i;
+			if (deadFound)
+				etat--;
+			for (int j=0; j<257; j++) {
+				newTransitions[etat][j] = newStatesName.indexOf(ensEtatDestination[oldNb][j]);
+			}
+			
+			tab_init[etat] = pre.tab_init[oldNb];
+			tab_fin[etat] = pre.tab_fin[oldNb];
 		}
-		
-		
 		
 		//gestion des etats finaux et non finaux done egalement
 
 		Automate res = new Automate(newTransitions, tab_init, tab_fin);
+		/*System.out.println("L'automate de preprocess : \n"+pre.toString());
+		System.out.println("L'automate de minimisation : \n"+res.toString());*/
+		
 		return res;
 	}
 
