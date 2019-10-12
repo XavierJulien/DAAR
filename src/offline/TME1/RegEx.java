@@ -14,8 +14,7 @@ public class RegEx {
 	static final int PARENTHESEOUVRANT = 0x16641664;
 	static final int PARENTHESEFERMANT = 0x51515151;
 	static final int DOT = 0xD07;
-	
-	static final int BACKSLASH_ASCII = 92;
+	public static final int BACKSLASH_ASCII = 92;
 
 	//REGEX
 	private static String regEx;
@@ -65,7 +64,7 @@ public class RegEx {
 				Automate auto_min = Automate.getMinimisation(auto_det);
 				System.out.println("  >> Automate minimisé: \n"+auto_min.toString());
 				System.out.println("  >> egrep \""+regEx+"\" "+file+" \n");
-				ArrayList<String> words = new MachineDeGuerre(auto_min).run("src/offline/"+file);
+				ArrayList<String> words = new MachineDeGuerre(auto_min).run("src/offline/ressources/"+file);
 				String res = "";
 				for(String s : words) {
 					res += s+"\n";

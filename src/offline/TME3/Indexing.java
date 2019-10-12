@@ -164,7 +164,6 @@ public class Indexing {
 					String[] pair_coord = coord.split(",");
 					coords.add(new Coord(Integer.valueOf(pair_coord[0]),Integer.valueOf(pair_coord[1])));
 				}
-				System.out.println(coords.size());
 				map.add(new Pair(word,coords));
 			}
 			br.close();
