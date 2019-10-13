@@ -42,6 +42,7 @@ public class MachineDeGuerre {
 	}
 
 	public boolean checkWord(String word) {
+		int cptReussite = 0;
 		char[] word_list = word.toCharArray();
 		int current_letter = 0;
 		boolean start_parcours = false;
@@ -61,6 +62,7 @@ public class MachineDeGuerre {
 					}
 				}
 				current_letter++;
+				cptReussite++;
 				if(!start_parcours) {continue;}
 			}else {
 				//on as passé le premier etat dans l'automate car on as trouvé une lettre qui match le premier pattern, on fait la suite de l'automate
@@ -80,6 +82,7 @@ public class MachineDeGuerre {
 					}else { //si on est pas encore sur le dernier etat, on continue
 						if(current_letter == word.length()) break;
 						current_letter++;
+						cptReussite++;
 						suite = false;
 					}
 				}else {//si on as pas trouv� de lettre pour avancer dans l'automate, on remet l'etat courant � 0 et on refait la recherche � partir de la m�me lettre
@@ -88,6 +91,7 @@ public class MachineDeGuerre {
 						if(tab_init[i]) current_state = i;
 					}
 					start_parcours = false;
+					current_letter = current_letter+1 - cptReussite;
 				}
 			}
 		}
