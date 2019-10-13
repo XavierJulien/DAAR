@@ -37,11 +37,11 @@ public class Main {
 			}
 		}
 		if(facteur.matches("[a-zA-Z-']*")) {
-			if(facteur.length() <=2) {
+			//if(facteur.length() <=2) {
 				algo = 2;
-			}else {
-				algo = 1;				
-			}
+			/*}else {
+			//	algo = 1;				
+			}*/
 		}
 		return algo;
 	}
@@ -49,6 +49,7 @@ public class Main {
 	public static void run(String regEx, String fichier) {
 		//int algo = chooseAlgo(regEx);
 		int algo = 3;
+		//****************************MAIN MACHINE DE GUERRE*************** 
 		if(algo == 3) {
 			System.out.println("Utilisation de la Machine de Guerre");
 			String[] args = new String[2];
@@ -57,8 +58,9 @@ public class Main {
 			Long time_before = System.currentTimeMillis();
 			RegEx.main(args);
 			Long time_after = System.currentTimeMillis();
-			System.out.println("Temps écoulé pour la Machine de Guerre (en ns) : "+(time_after-time_before));
+			System.out.println("Temps écoulé pour la Machine de Guerre (en ms) : "+(time_after-time_before));
 		}
+		//****************************MAIN KMP*************** 
 		if(algo == 2) {
 			System.out.println("Utilisation de KMP");
 			String[] args = new String[2];
@@ -70,7 +72,8 @@ public class Main {
 			System.out.println("Temps écoulé pour KMP (en ms) : "+(time_after-time_before));
 
 		}
-		if(algo == 1) {
+		//****************************MAIN RADIXTREE (on ne l'utilise pas pour l'algo final)*************** 
+		/*if(algo == 1) {
 			//Pour UTILISER LA SERIALISATION, Changer l'init du tree par la m�thode unserializeTree et d�commenter la clause catch en bas
 			System.out.println("Utilisation du RadixTree");
 			try {
@@ -83,7 +86,6 @@ public class Main {
 				RadixTree tree = Indexing.createRadix(new File("src/offline/ressources/"+fichier+".index"));
 				Long time_before = System.nanoTime();
 				ArrayList<Coord> coord_regex = tree.search(regEx.toLowerCase().toCharArray(), new ArrayList<>());
-				System.out.println(coord_regex.size());
 				System.out.println("  >> egrep \""+regEx+"\" "+fichier+" \n");
 				//colorisation du texte et affichage des lignes match�s dans le terminal
 				for(Coord c : coord_regex) {
@@ -95,28 +97,23 @@ public class Main {
 				}
 				Long time_after = System.nanoTime();
 				System.out.println("Temps écoulé pour le radixTree(en ms) : "+(time_after-time_before));
-			/*} catch (ClassNotFoundException e) {e.printStackTrace();*/} catch (IOException e) {e.printStackTrace();}
-		}
+			} catch (IOException e) {e.printStackTrace();}
+		}*/
 	}
 
 	public static void main(String[] args) {
-		/*Scanner scanner = new Scanner(System.in);
+		Scanner scanner = new Scanner(System.in);
 		System.out.print("  >> Please enter a regEx: ");
 		String regEx = scanner.next();
 		System.out.print("  >> Please enter a file: ");
 		String file = scanner.next();
 		scanner.close();
-		//File file_ser = new File("src/offline/"+file+".ser");
 		File file_index = new File("src/offline/ressources/"+file+".index");
-		if(!file_ser.exists()) {
-			System.out.println("on applique le pr� processing de radix tree");
-			Indexing.runIndexing(new File("src/offline/"+file));
-		}
 		if(!file_index.exists()) {
 			Indexing.runIndexing(new File("src/offline/ressources/"+file));
-		}*/
+		}
 		
-		//run(regEx,file);
-		run("1\\.E\\.","alice.txt");
+		run(regEx,file);
+		//run("any","alice.txt");
 	}
 }

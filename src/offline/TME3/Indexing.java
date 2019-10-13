@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 import offline.TME2.Matching;
 
@@ -129,11 +130,11 @@ public class Indexing {
 							(a, b) -> { throw new AssertionError(); },
 							LinkedHashMap::new
 							));
-			//ArrayList<Pair> string_coords = new ArrayList<>();
-			PrintWriter writer = new PrintWriter("src/offline/"+file.getName()+".index", "UTF-8");
+			PrintWriter writer = new PrintWriter("src/offline/ressources/"+file.getName()+".index", "UTF-8");
 			sorted_map.forEach((k,v)-> {
 				writer.println(k+" "+getCoords(v));});
 			writer.close();
+			//ArrayList<Pair> string_coords = new ArrayList<>();
 			//sorted_map.forEach((k,v) -> string_coords.add(new Pair(k,v)));
 			//serialisation pour ajouter le radix tree dans un fichier et ne pas refaire plusieurs fois cette m�thode
 			// DECOMMENTER EN DESSOUS POUR SERIALISER 
@@ -142,18 +143,18 @@ public class Indexing {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static RadixTree createRadix(File file) {
 		BufferedReader br;
 		try {
 			br = new BufferedReader(new FileReader(file));
-			
+
 			ArrayList<Pair> map = new ArrayList<Pair>();
 			String line;
 			while ((line = br.readLine()) != null) {
 				ArrayList<Coord> coords = new ArrayList<>();
 				line = line.toLowerCase();
-				
+
 				String[] splitedLine = line.split(" ");
 				String word = splitedLine[0];
 				String list_coord = splitedLine[1];
@@ -173,5 +174,16 @@ public class Indexing {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		System.out.print("  >> Please enter a file: ");
+		String file = scanner.next();
+		scanner.close();
+		File file_index = new File("src/offline/ressources/"+file+".index");
+		if(!file_index.exists()) {
+			Indexing.runIndexing(new File("src/offline/ressources/"+file));
+		}
 	}
 }
