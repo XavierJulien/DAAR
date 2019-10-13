@@ -24,7 +24,6 @@ public class Matching{
             if(courant_facteur==facteur.length){
                 return courant_line-facteur.length;
             }
-            System.out.println(texte[courant_line]+ " "+facteur[courant_facteur]);
             if(texte[courant_line] == facteur[courant_facteur]){
                 courant_line++;
                 courant_facteur++;
@@ -119,7 +118,6 @@ public class Matching{
 			while((line = br.readLine()) != null) {
 				if(line.length() != 0) {
 					int pos = matchingAlgo(regEx,retenue,line.toCharArray());
-					System.out.println(line);
 					if(!lines_ok.contains(line) && pos != -1) {//on check chaque mot et on verifie qu'il n'y ait pas de doublon
 						lines_ok.add(line);
 					}
