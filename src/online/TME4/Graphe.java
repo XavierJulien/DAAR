@@ -1,4 +1,4 @@
-package online;
+package online.TME4;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,8 +44,7 @@ public class Graphe {
 
 	public double getBetweenness(int sommet) {
 
-
-
+		
 		for (int k = 0; k < nbSommet; k++) {
 			for (int i = 0; i < nbSommet; i++) {
 				for (int j = 0; j < nbSommet; j++) {
