@@ -5,13 +5,32 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Jaccard {
+public class Node {
 	
 	public static final Double seuil = 0.75;
+	
+	protected static int id = 0;
+	protected int myident;
+	protected ArrayList<Node> neighbours;
+	protected HashMap<String, Integer> index;
+	
+	
+	public Node(File f) {
+		myident = id++;
+		this.index = getIndex(f);
+		neighbours = new ArrayList<>();
+	}
+	
+	public Node(HashMap<String, Integer> index) {
+		this.index = index;
+		neighbours = new ArrayList<>();
+	}
 
-	public HashMap<String,Integer> getIndex(File document){
+	
+	public static HashMap<String,Integer> getIndex(File document){
 		HashMap <String,Integer> result = new HashMap<>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(document));
@@ -20,9 +39,9 @@ public class Jaccard {
 				String[] line_split = line.split("[^A-Za-z]");
 				for(String word : line_split) {
 					if(result.containsKey(word)) {
-						result.put(word, result.get(word)+1);
+						result.put(word.toLowerCase(), result.get(word)+1);
 					}else {
-						result.put(word, 1);
+						result.put(word.toLowerCase(), 1);
 					}
 				}
 			}
@@ -35,7 +54,7 @@ public class Jaccard {
 		return result;
 	}
 	
-	public Double getDistJaccard(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
+	public static Double getDistJaccard(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
 		int dividende = 0;
 		int diviseur = 0;
 		if(document1.size() > document2.size()) {
@@ -53,13 +72,18 @@ public class Jaccard {
 				}
 			}
 		}
-		
-		return dividende/diviseur*1.0;
+		return dividende/(diviseur*1.0);
 	}
 	
-	public boolean isNeighbour(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
+	public static boolean isNeighbour(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
 		return getDistJaccard(document1, document2) < seuil;
 	}
-
 	
+	public void generateNeighbours(ArrayList<Node> nodes) {
+		for(Node doc : nodes) {
+			if(isNeighbour(index, doc.index)) {
+				neighbours.add(doc);
+			}
+		}
+	}
 }

@@ -59,12 +59,7 @@ public class Graphe {
 
 		return .0;
 	}
-
-	/*if (dist[i][j] > dist[i][k] + dist[k][j]) {
-		dist[i][j] = dist[i][k] + dist[k][j];
-		paths[i][j] = paths[i][k];
-
-	}*/
+	
 	public double getCloseness(int sommet) {
 		int somme = 0;
 		for (Integer u : sommets) {
