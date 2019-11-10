@@ -1,4 +1,4 @@
-package online.TME5;
+package online;
 public class Rank {
   public Rank(){}
   public static void main(String[] args){

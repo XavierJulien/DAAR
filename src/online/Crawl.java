@@ -1,4 +1,4 @@
-package online.TME5;
+package online;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

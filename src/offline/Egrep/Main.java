@@ -1,17 +1,11 @@
 package offline.Egrep;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 import offline.TME1.RegEx;
 import offline.TME2.Matching;
-import offline.TME3.Coord;
 import offline.TME3.Indexing;
-import offline.TME3.RadixTree;
 
 public class Main {
 

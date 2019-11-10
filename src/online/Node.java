@@ -1,4 +1,4 @@
-package online.TME5;
+package online;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,18 +15,22 @@ public class Node {
 	protected static int id = 0;
 	protected int myident;
 	protected ArrayList<Node> neighbours;
+	protected ArrayList<Double> dist;
 	protected HashMap<String, Integer> index;
+	
 	
 	
 	public Node(File f) {
 		myident = id++;
 		this.index = getIndex(f);
 		neighbours = new ArrayList<>();
+		dist = new ArrayList<>();
 	}
 	
 	public Node(HashMap<String, Integer> index) {
 		this.index = index;
 		neighbours = new ArrayList<>();
+		dist = new ArrayList<>();
 	}
 
 	
@@ -83,6 +87,16 @@ public class Node {
 		for(Node doc : nodes) {
 			if(isNeighbour(index, doc.index)) {
 				neighbours.add(doc);
+			}
+		}
+	}
+	
+	public void generateDist(ArrayList<Node> nodes) {
+		for(Node doc : nodes) {
+			if(isNeighbour(index, doc.index)) {
+				dist.add(getDistJaccard(index, doc.index));
+			}else {
+				dist.add(0.0);
 			}
 		}
 	}
