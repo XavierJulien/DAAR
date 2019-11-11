@@ -10,12 +10,12 @@ import java.util.HashMap;
 
 public class Node {
 	
-	public static final Double seuil = 0.75;
+	public static final Float seuil = 0.75f;
 	
 	protected static int id = 0;
 	protected int myident;
 	protected ArrayList<Node> neighbours;
-	protected ArrayList<Double> dist;
+	protected ArrayList<Float> dist;
 	protected HashMap<String, Integer> index;
 	
 	
@@ -58,7 +58,7 @@ public class Node {
 		return result;
 	}
 	
-	public static Double getDistJaccard(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
+	public static float getDistJaccard(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
 		int dividende = 0;
 		int diviseur = 0;
 		if(document1.size() > document2.size()) {
@@ -76,7 +76,7 @@ public class Node {
 				}
 			}
 		}
-		return dividende/(diviseur*1.0);
+		return (float) (dividende/(diviseur*1.0));
 	}
 	
 	public static boolean isNeighbour(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
@@ -96,7 +96,7 @@ public class Node {
 			if(isNeighbour(index, doc.index)) {
 				dist.add(getDistJaccard(index, doc.index));
 			}else {
-				dist.add(0.0);
+				dist.add(Float.POSITIVE_INFINITY);
 			}
 		}
 	}
