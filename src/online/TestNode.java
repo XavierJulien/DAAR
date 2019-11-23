@@ -6,12 +6,12 @@ import java.util.ArrayList;
 public class TestNode {
 
 	public static void main(String[] args) {
-		int nblivres = 50;
+		int nblivres = 7;
 		ArrayList<Node> nodes = new ArrayList<Node>();
 		ArrayList<File> files = new ArrayList<File>();
-		float[][] tab_dist = new float[50][50];
-		for(int i = 0;i<nblivres;i++) {
-			File f = new File("src/online/livres/"+i+".txt");
+		float[][] tab_dist = new float[nblivres][nblivres];
+		for(int i = 1;i<nblivres+1;i++) {
+			File f = new File("src/online/livres2/4299"+i+".txt");
 			files.add(f);
 		}
 		for(File f : files) {
@@ -51,5 +51,9 @@ public class TestNode {
 		
 		System.out.println("betweeness de 3"+g.getBetweenness(3));
 		
+		
+		Graphe g2loss = new Graphe("src/online/test/test.txt",5);
+		g2loss.printmat_dist();
+		g2loss.printmat_path();
 	}
 }

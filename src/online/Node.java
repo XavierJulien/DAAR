@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Node {
 	
@@ -61,21 +62,21 @@ public class Node {
 	public static float getDistJaccard(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
 		int dividende = 0;
 		int diviseur = 0;
-		if(document1.size() > document2.size()) {
-			for(String s2 : document2.keySet()) {
-				if(document1.containsKey(s2)){
-					dividende += (Math.max(document1.get(s2), document2.get(s2))-Math.min(document1.get(s2), document2.get(s2)));
-					diviseur += Math.max(document1.get(s2), document2.get(s2));
-				}
+		HashSet<String> keys = new HashSet<String>(document1.keySet());
+		keys.addAll(document2.keySet());
+		for(String k : keys) {
+			int cptDoc1 = 0;
+			int cptDoc2 = 0;
+			if(document1.containsKey(k)){
+				cptDoc1 = document1.get(k);
 			}
-		}else{
-			for(String s1 : document1.keySet()) {
-				if(document2.containsKey(s1)){
-					dividende += (Math.max(document2.get(s1), document1.get(s1))-Math.min(document2.get(s1), document1.get(s1)));
-					diviseur += Math.max(document2.get(s1), document1.get(s1));
-				}
+			if(document2.containsKey(k)){
+				cptDoc2 = document2.get(k);
 			}
+			dividende += (Math.max(cptDoc1, cptDoc2)-Math.min(cptDoc1, cptDoc2));
+			diviseur += Math.max(cptDoc1, cptDoc2);
 		}
+		
 		return (float) (dividende/(diviseur*1.0));
 	}
 	
