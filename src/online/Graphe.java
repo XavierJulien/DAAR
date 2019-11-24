@@ -1,9 +1,5 @@
 package online;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 
 public class Graphe {
@@ -11,182 +7,92 @@ public class Graphe {
 	ArrayList<Integer> sommets = new ArrayList<>();
 	int nbSommets;
 	ArrayList<Integer> [][] mat_path;
-	float [][] mat_dist; 
+	double [][] mat_dist; 
+	double [][] mat_nb_chemin; 
 
 	@SuppressWarnings("unchecked")
-	public Graphe(String filename, int nbSommets) {
+	public Graphe(ArrayList<Node> all_nodes,double [][] jaccard, int nbSommets) {
+		for (int i = 0; i < nbSommets; i++) {
+			sommets.add(i);
+		}
 		this.nbSommets = nbSommets;
-		this.mat_dist = new float[nbSommets][nbSommets];
+		this.mat_dist = new double[nbSommets][nbSommets];
+		this.mat_nb_chemin = new double[nbSommets][nbSommets];
 		this.mat_path = new ArrayList[nbSommets][nbSommets];
 		for (int i=0;i<nbSommets;i++) {
+			ArrayList<Node> neighbours = all_nodes.get(i).neighbours;
 			for (int j=0;j<nbSommets;j++) {
-				if(i==j) {
-					mat_dist[i][j] = 0f;
-					mat_path[i][j] = new ArrayList<>();
-				}
-				mat_dist[i][j] = Float.POSITIVE_INFINITY;
+				final int cpt = j;
 				mat_path[i][j] = new ArrayList<>();
+				if(neighbours.stream().filter(n -> n.myident == cpt).findFirst().isPresent()) {
+					this.mat_nb_chemin[i][j] = 1f;
+					this.mat_dist[i][j] = Math.round(jaccard[i][j]*100.0)/100.0;
+					this.mat_path[i][j].add(j);
+				}else {
+					mat_nb_chemin[i][j] = Double.POSITIVE_INFINITY;
+					mat_dist[i][j] = Double.POSITIVE_INFINITY;					
+				}
 			}
-		}
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(filename));
-			String line;
-			HashSet<Integer> sommetsSet = new HashSet<>();
-			while((line = br.readLine()) != null) {
-				String[] splitedLine = line.split(" ");
-				int s1 = Integer.valueOf(splitedLine[0]);
-				int s2 = Integer.valueOf(splitedLine[1]);
-				sommetsSet.add(s1);
-				sommetsSet.add(s2);
-				mat_dist[s1][s2]=1f;
-				mat_dist[s2][s1]=1f;
-				mat_path[s1][s2].add(s2);
-				mat_path[s2][s1].add(s1);
-			}
-			sommets.addAll(sommetsSet);
-			br.close();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 		//calcul de la matrice de distance
 		for (int k = 0; k < nbSommets; k++) {
 			for (int i = 0; i < nbSommets; i++) {
+				if(i == k) continue;
 				for (int j = 0; j < nbSommets; j++) {
-					if(i==j) continue;
-					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) {
-						mat_dist[i][j] = mat_dist[i][k] + mat_dist[k][j];
-					}
+					if(i==j || j == k) continue;
+					if(mat_nb_chemin[i][j] > mat_nb_chemin[i][k] + mat_nb_chemin[k][j]) mat_nb_chemin[i][j] = mat_nb_chemin[i][k] + mat_nb_chemin[k][j];
+					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) mat_dist[i][j] = Math.round((mat_dist[i][k] + mat_dist[k][j])*100.0)/100.0;
 				}
 			}
 		}
 		//calcul de la matrice de chemin
 		for (int k = 0; k < nbSommets; k++) {
 			for (int i = 0; i < nbSommets; i++) {
+				if(i == k) continue;
 				for (int j = 0; j < nbSommets; j++) {
-					if(i==j) continue;
-					if(mat_dist[i][j] != Float.POSITIVE_INFINITY && mat_dist[i][j] == mat_dist[i][k] + mat_dist[k][j] && mat_dist[i][k] == 1) {
-						mat_path[i][j].add(k);
-					}
-					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) {
-						if (mat_dist[i][k] == 1) {
+					if(i==j || j == k) continue;
+					if(mat_nb_chemin[i][k] == 1) {//si k est un de mes voisins
+						if(mat_nb_chemin[i][j] != Double.POSITIVE_INFINITY && 
+						   mat_nb_chemin[i][j] == mat_nb_chemin[i][k] + mat_nb_chemin[k][j]) 
+							mat_path[i][j].add(k);
+						
+						if(mat_nb_chemin[i][j] > mat_nb_chemin[i][k] + mat_nb_chemin[k][j]) {
 							mat_path[i][j].clear();
 							mat_path[i][j].add(k);
 						}
 					}
 				}
-			}
-		  /*System.out.println("ITERATION k = "+k);
-			System.out.println("Mat_dist");
-			printmat_dist(mat_distance);
-			System.out.println("Mat_path");
-			printmat_path(mat_path);
-			System.out.println();*/
-		}
-
-
-
-	}
-
-	@SuppressWarnings("unchecked")
-	public Graphe(ArrayList<Node> neigbours,float [][] jaccard, int nbSommets) {
-		this.nbSommets = nbSommets;
-		this.mat_dist = new float[nbSommets][nbSommets];
-		this.mat_path = new ArrayList[nbSommets][nbSommets];
-		for (int i=0;i<nbSommets;i++) {
-			for (int j=0;j<nbSommets;j++) {
-				if(i==j) {
-					mat_dist[i][j] = 0f;
-					mat_path[i][j] = new ArrayList<>();
-				}
-				mat_dist[i][j] = Float.POSITIVE_INFINITY;
-				mat_path[i][j] = new ArrayList<>();
-			}
-		}
-		for (Node n : neigbours) {
-			ArrayList<Node> nodes = n.neighbours;
-			for (Node node : nodes) {
-				this.mat_dist[n.myident][node.myident] = 1f;
-				this.mat_dist[node.myident][n.myident] = 1f;
-				this.mat_path[n.myident][node.myident].add(node.myident);
 			}
 		}
 		
-		//calcul de la matrice de distance
-		for (int k = 0; k < nbSommets; k++) {
-			for (int i = 0; i < nbSommets; i++) {
-				for (int j = 0; j < nbSommets; j++) {
-					if(i==j) continue;
-					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) {
-						mat_dist[i][j] = mat_dist[i][k] + mat_dist[k][j];
-					}
-				}
-			}
-		}
-		//calcul de la matrice de chemin
-		for (int k = 0; k < nbSommets; k++) {
-			for (int i = 0; i < nbSommets; i++) {
-				for (int j = 0; j < nbSommets; j++) {
-					if(i==j || i == k || j == k) continue;
-					if(mat_dist[i][j] != Double.POSITIVE_INFINITY && mat_dist[i][j] == mat_dist[i][k] + mat_dist[k][j] && mat_dist[i][k] == 1) mat_path[i][j].add(k);
-					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) {
-						if (mat_dist[i][k] == 1) {
-							mat_path[i][j].clear();
-							mat_path[i][j].add(k);
-						}
-					}
-				}
-			}
-		}
-		for (Node n : neigbours) {
-			ArrayList<Node> nodes = n.neighbours;
-			for (Node node : nodes) {
-				this.mat_dist[n.myident][node.myident] = jaccard[n.myident][node.myident];
-				this.mat_dist[node.myident][n.myident] = jaccard[node.myident][n.myident];
-			}
-		}
-		//calcul de la matrice de distance
-		for (int k = 0; k < nbSommets; k++) {
-			for (int i = 0; i < nbSommets; i++) {
-				for (int j = 0; j < nbSommets; j++) {
-					if(i==j || i==k || j==k) continue;
-					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) {
-						mat_dist[i][j] = mat_dist[i][k] + mat_dist[k][j];
-					}
-				}
-			}
-		}
-		//supprime les path non valides
+		//re-calcul de la matrice de chemin
 		for (int i = 0; i < nbSommets; i++) {
 			for (int j = 0; j < nbSommets; j++) {
 				if(i==j) continue;
-				if(mat_dist[i][j] != Float.POSITIVE_INFINITY && mat_path[i][j].size() > 1) {
-					Integer[] tab = new Integer[mat_path[i][j].size()];
-					for (int k = 0; k < tab.length; k++) {
-						tab[k] = mat_path[i][j].get(k);
-					}
-					for (int k = 0; k < mat_path[i][j].size(); k++) {
-						if(mat_dist[i][j] < mat_dist[i][mat_path[i][j].get(k)] + mat_dist[mat_path[i][j].get(k)][j]) {
-							tab[k] = -1;
-						}
-					}
-					mat_path[i][j].clear();
-					for (int k = 0; k < tab.length; k++) {
-						if(tab[k] != -1) {
-							mat_path[i][j].add(tab[k]);
+				if(mat_dist[i][j] != Double.POSITIVE_INFINITY && mat_path[i][j].size() > 1) {
+					for (int k = mat_path[i][j].size()-1; k >= 0; k--) {
+						if(mat_dist[i][j] < Math.round((mat_dist[i][mat_path[i][j].get(k)] + mat_dist[mat_path[i][j].get(k)][j])*100.0)/100.0) {
+							mat_path[i][j].remove(k);
 						}
 					}
 				}
 			}
 		}
 	}
-	
+
 	public void printmat_path() {
 		for (int j = 0; j < mat_path.length; j++) {
 			System.out.print(j+" |" );
-			for (int j2 = 0; j2 < mat_path.length; j2++) {
-					System.out.print(" "+mat_path[j][j2]+" ");	
-			}
+			for (int j2 = 0; j2 < mat_path.length; j2++) System.out.print(" "+mat_path[j][j2]+" ");	
+			System.out.println();
+		}
+	}
+
+	public void printmat_nb_chemin() {
+		for (int j = 0; j < mat_nb_chemin.length; j++) {
+			System.out.print(j+" |" );
+			for (int j2 = 0; j2 < mat_nb_chemin.length; j2++) System.out.print(" "+mat_nb_chemin[j][j2]+" ");	
 			System.out.println();
 		}
 	}
@@ -194,14 +100,12 @@ public class Graphe {
 	public void printmat_dist() {
 		for (int j = 0; j < mat_dist.length; j++) {
 			System.out.print(j+" |" );
-			for (int j2 = 0; j2 < mat_dist.length; j2++) {
-				System.out.print(String.format("%.2f", mat_dist[j][j2])+" ");
-			}
+			for (int j2 = 0; j2 < mat_dist.length; j2++) System.out.print(String.format("%.2f", mat_dist[j][j2])+" ");
 			System.out.println();
 		}
 	}
-	
-	public float[][] getMat_distance() {
+
+	public double[][] getMat_distance() {
 		return mat_dist;
 	}
 
@@ -249,14 +153,16 @@ public class Graphe {
 			for (int j=i+1; j<sommets.size(); j++) {
 				Integer t = sommets.get(j);
 				if (t.equals(sommet)) continue; //il ne devrait pas y avoir ce cas mais juste au cas où
+				//System.out.println("i et j : "+i+", "+j);
 				double nbByV = getNbPlusPetitCheminByV(s,t,sommet);
 				double nb = getNbPlusPetitChemin(s,t);
+				//System.out.println("nbByV "+nbByV+ ", nb "+nb);
 				res += nbByV/nb;
 			}
 		}
 		return res;
 	}
-	
+
 	//closeness : noeud proche de tout les autres noeuds
 	public double getCloseness(Integer sommet) {
 		int sum = 0;
