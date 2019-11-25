@@ -15,37 +15,21 @@ public class Node {
 	
 	protected static int id = 0;
 	protected int myident;
-	protected ArrayList<Node> neighbours;
-	protected ArrayList<Double> dist;
+	
+	protected ArrayList<Integer> neighbours = new ArrayList<>();
+	protected ArrayList<Double> dist = new ArrayList<>();
 	protected HashMap<String, Integer> index;
-	protected ArrayList<String> words_filter;
 	
 	
 	
 	public Node(File f,ArrayList<String> words_filter) {
 		myident = id++;
-		this.words_filter = words_filter;
 		this.index = getIndex(f);
-		for(String word : words_filter) {
-			this.index.remove(word);
-		}
-		neighbours = new ArrayList<>();
-		dist = new ArrayList<>();
+		for(String word : words_filter)	this.index.remove(word);
 	}
-	
-	public Node(HashMap<String, Integer> index,ArrayList<String> words_filter) {
-		this.words_filter = words_filter;
-		this.index = index;
-		for(String word : words_filter) {
-			this.index.remove(word);
-		}
-		neighbours = new ArrayList<>();
-		dist = new ArrayList<>();
-	}
-
 	
 	public static HashMap<String,Integer> getIndex(File document){
-		HashMap <String,Integer> result = new HashMap<>();
+		HashMap <String,Integer> index = new HashMap<>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(document));
 			String line;
@@ -53,36 +37,27 @@ public class Node {
 				String[] line_split = line.split("[^A-Za-z]");
 				for(String word : line_split) {
 					word = word.toLowerCase();
-					if(result.containsKey(word)) {
-						result.put(word.toLowerCase(), result.get(word)+1);
+					if(index.containsKey(word)) {
+						index.put(word.toLowerCase(), index.get(word)+1);
 					}else {
-						result.put(word.toLowerCase(), 1);
+						index.put(word.toLowerCase(), 1);
 					}
 				}
 			}
 			br.close();
-		}catch(FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return result;
+		}catch(FileNotFoundException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
+		return index;
 	}
 	
 	public static double getDistJaccard(HashMap<String,Integer> document1,HashMap<String,Integer> document2) {
 		int dividende = 0;
 		int diviseur = 0;
-		HashSet<String> keys = new HashSet<String>(document1.keySet());
-		keys.addAll(document2.keySet());
-		for(String k : keys) {
-			int cptDoc1 = 0;
-			int cptDoc2 = 0;
-			if(document1.containsKey(k)){
-				cptDoc1 = document1.get(k);
-			}
-			if(document2.containsKey(k)){
-				cptDoc2 = document2.get(k);
-			}
+		HashSet<String> all_words = new HashSet<String>(document1.keySet());
+		all_words.addAll(document2.keySet());
+		for(String k : all_words) {
+			int cptDoc1 = 0, cptDoc2 = 0;
+			if(document1.containsKey(k)) cptDoc1 = document1.get(k);
+			if(document2.containsKey(k)) cptDoc2 = document2.get(k);
 			dividende += (Math.max(cptDoc1, cptDoc2)-Math.min(cptDoc1, cptDoc2));
 			diviseur += Math.max(cptDoc1, cptDoc2);
 		}
@@ -95,11 +70,9 @@ public class Node {
 	}
 	
 	public void generateNeighbours(ArrayList<Node> nodes) {
-		for(Node doc : nodes) {
-			if(isNeighbour(index, doc.index)) {
-				neighbours.add(doc);
-			}
-		}
+		for(Node doc : nodes) 
+			if(isNeighbour(index, doc.index)) 
+				neighbours.add(doc.myident);
 	}
 	
 	public void generateDist(ArrayList<Node> nodes) {

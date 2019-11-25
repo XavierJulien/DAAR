@@ -2,31 +2,42 @@ package online;
 import java.util.ArrayList;
 
 
+
 public class Graphe {
 
+	//**************NODES**************
 	ArrayList<Integer> sommets = new ArrayList<>();
+	ArrayList<Node> all_nodes;
 	int nbSommets;
+
+	//**************MATRICES**************
 	ArrayList<Integer> [][] mat_path;
 	double [][] mat_dist; 
 	double [][] mat_nb_chemin; 
-	ArrayList<Node> all_nodes;
 
+
+	//**********************************************************
+	//**************************GRAPHE**************************
+	//**********************************************************
 	@SuppressWarnings("unchecked")
-	public Graphe(ArrayList<Node> all_nodes,double [][] jaccard, int nbSommets) {
+	public Graphe(ArrayList<Node> all_nodes,double [][] jaccard) {
+		//init variables nodes
 		this.all_nodes = all_nodes;
-		for (int i = 0; i < nbSommets; i++) {
-			sommets.add(i);
-		}
-		this.nbSommets = nbSommets;
+		this.nbSommets = all_nodes.size();
+		for (int i = 0; i < nbSommets; i++) sommets.add(i);
+		
+		//init variables matrices
 		this.mat_dist = new double[nbSommets][nbSommets];
 		this.mat_nb_chemin = new double[nbSommets][nbSommets];
 		this.mat_path = new ArrayList[nbSommets][nbSommets];
+		
+		//initialisation des matrices
 		for (int i=0;i<nbSommets;i++) {
-			ArrayList<Node> neighbours = all_nodes.get(i).neighbours;
+			ArrayList<Integer> neighbours = all_nodes.get(i).neighbours;
 			for (int j=0;j<nbSommets;j++) {
 				final int cpt = j;
 				mat_path[i][j] = new ArrayList<>();
-				if(neighbours.stream().filter(n -> n.myident == cpt).findFirst().isPresent()) {
+				if(neighbours.stream().filter(id -> id == cpt).findFirst().isPresent()) {
 					this.mat_nb_chemin[i][j] = 1f;
 					this.mat_dist[i][j] = Math.round(jaccard[i][j]*100.0)/100.0;
 					this.mat_path[i][j].add(j);
@@ -37,18 +48,21 @@ public class Graphe {
 			}
 		}
 
-		//calcul de la matrice de distance
+		//calcul de la matrice de dist et matrice de nb_chemin
 		for (int k = 0; k < nbSommets; k++) {
 			for (int i = 0; i < nbSommets; i++) {
 				if(i == k) continue;
 				for (int j = 0; j < nbSommets; j++) {
 					if(i==j || j == k) continue;
-					if(mat_nb_chemin[i][j] > mat_nb_chemin[i][k] + mat_nb_chemin[k][j]) mat_nb_chemin[i][j] = mat_nb_chemin[i][k] + mat_nb_chemin[k][j];
-					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) mat_dist[i][j] = Math.round((mat_dist[i][k] + mat_dist[k][j])*100.0)/100.0;
+					if(mat_nb_chemin[i][j] > mat_nb_chemin[i][k] + mat_nb_chemin[k][j]) 
+						mat_nb_chemin[i][j] = mat_nb_chemin[i][k] + mat_nb_chemin[k][j];
+					if(mat_dist[i][j] > mat_dist[i][k] + mat_dist[k][j]) 
+						mat_dist[i][j] = Math.round((mat_dist[i][k] + mat_dist[k][j])*100.0)/100.0;
 				}
 			}
 		}
-		//calcul de la matrice de chemin
+		
+		//calcul de la matrice de path en fonction du nombre de chemins possibles dans nb_chemin
 		for (int k = 0; k < nbSommets; k++) {
 			for (int i = 0; i < nbSommets; i++) {
 				if(i == k) continue;
@@ -68,21 +82,21 @@ public class Graphe {
 			}
 		}
 		
-		//re-calcul de la matrice de chemin
+		//calcul de la matrice de path en fonction du/des chemins égaux à la distance minimale dans la matrice de dist
 		for (int i = 0; i < nbSommets; i++) {
 			for (int j = 0; j < nbSommets; j++) {
 				if(i==j) continue;
-				if(mat_dist[i][j] != Double.POSITIVE_INFINITY && mat_path[i][j].size() > 1) {
-					for (int k = mat_path[i][j].size()-1; k >= 0; k--) {
-						if(mat_dist[i][j] < Math.round((mat_dist[i][mat_path[i][j].get(k)] + mat_dist[mat_path[i][j].get(k)][j])*100.0)/100.0) {
+				if(mat_dist[i][j] != Double.POSITIVE_INFINITY && mat_path[i][j].size() > 1)
+					for (int k = mat_path[i][j].size()-1; k >= 0; k--)
+						if(mat_dist[i][j] < Math.round((mat_dist[i][mat_path[i][j].get(k)] + mat_dist[mat_path[i][j].get(k)][j])*100.0)/100.0)
 							mat_path[i][j].remove(k);
-						}
-					}
-				}
 			}
 		}
 	}
 
+	//**********************************************************
+	//**************************AFFICHAGE***********************
+	//**********************************************************
 	public void printmat_path() {
 		for (int j = 0; j < mat_path.length; j++) {
 			System.out.print(j+" |" );
@@ -107,10 +121,9 @@ public class Graphe {
 		}
 	}
 
-	public double[][] getMat_distance() {
-		return mat_dist;
-	}
-
+	//**********************************************************
+	//**************************UTILS***************************
+	//**********************************************************
 	public int getNbPlusPetitChemin(Integer s, Integer t) {
 		int nbChemin = 0;
 		ArrayList<Integer> working_list = new ArrayList<>();
@@ -145,27 +158,30 @@ public class Graphe {
 		}
 		return nbChemin + (int) working_list.stream().filter((e)-> e.equals(v)).count();
 	}
-
+	
+	//**********************************************************
+	//************************BETWEENESS************************
+	//**********************************************************
 	//betweeness : à quel point le noeud est important au vu du passage d'info entre les autres noeuds (permet une forte communication)
 	public double getBetweenness(int sommet) {		
 		double res = all_nodes.get(sommet).neighbours.size();
-		
 		for (int i=0; i<sommets.size(); i++) {
 			Integer s = sommets.get(i);
 			if (s.equals(sommet)) continue;
 			for (int j=i+1; j<sommets.size(); j++) {
 				Integer t = sommets.get(j);
 				if (t.equals(sommet)) continue; //il ne devrait pas y avoir ce cas mais juste au cas où
-				//System.out.println("i et j : "+i+", "+j);
 				double nbByV = getNbPlusPetitCheminByV(s,t,sommet);
 				double nb = getNbPlusPetitChemin(s,t);
-				//System.out.println("nbByV "+nbByV+ ", nb "+nb);
 				res += nbByV/nb;
 			}
 		}
 		return res;
 	}
 
+	//**********************************************************
+	//************************CLOSENESS*************************
+	//**********************************************************
 	//closeness : noeud proche de tout les autres noeuds
 	public double getCloseness(Integer sommet) {
 		int sum = 0;
@@ -175,7 +191,4 @@ public class Graphe {
 		}
 		return (nbSommets-1.)/sum;
 	}
-
-
-
 }
