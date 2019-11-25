@@ -9,9 +9,11 @@ public class Graphe {
 	ArrayList<Integer> [][] mat_path;
 	double [][] mat_dist; 
 	double [][] mat_nb_chemin; 
+	ArrayList<Node> all_nodes;
 
 	@SuppressWarnings("unchecked")
 	public Graphe(ArrayList<Node> all_nodes,double [][] jaccard, int nbSommets) {
+		this.all_nodes = all_nodes;
 		for (int i = 0; i < nbSommets; i++) {
 			sommets.add(i);
 		}
@@ -146,7 +148,8 @@ public class Graphe {
 
 	//betweeness : à quel point le noeud est important au vu du passage d'info entre les autres noeuds (permet une forte communication)
 	public double getBetweenness(int sommet) {		
-		double res = 0.0;
+		double res = all_nodes.get(sommet).neighbours.size();
+		
 		for (int i=0; i<sommets.size(); i++) {
 			Integer s = sommets.get(i);
 			if (s.equals(sommet)) continue;

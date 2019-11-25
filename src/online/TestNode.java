@@ -67,8 +67,8 @@ public class TestNode {
 		g.printmat_path();
 		
 		for(int i = 0;i<nblivres;i++) {
-			//System.out.println("betweeness de "+i+" : "+g.getBetweenness(i));			
-			System.out.println("closeness de "+i+" : "+g.getCloseness(i));
+			System.out.println("betweeness de "+i+" : "+g.getBetweenness(i));			
+			//System.out.println("closeness de "+i+" : "+g.getCloseness(i));
 		}
 	}
 }
