@@ -165,6 +165,7 @@ public class Graphe {
 	//betweeness : à quel point le noeud est important au vu du passage d'info entre les autres noeuds (permet une forte communication)
 	public double getBetweenness(int sommet) {		
 		double res = all_nodes.get(sommet).neighbours.size();
+		//double res = 0.0;
 		for (int i=0; i<sommets.size(); i++) {
 			Integer s = sommets.get(i);
 			if (s.equals(sommet)) continue;

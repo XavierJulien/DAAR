@@ -16,23 +16,23 @@ import java.util.Map.Entry;
 public class Run {
 
 	//*********************SORT FUNCTION*********************
-	public static LinkedHashMap<Integer, Double> sortHashMapByValues(
-	        HashMap<Integer, Double> passedMap) {
-	    List<Integer> mapKeys = new ArrayList<>(passedMap.keySet());
+	public static LinkedHashMap<String, Double> sortHashMapByValues(
+	        HashMap<String, Double> passedMap) {
+	    List<String> mapKeys = new ArrayList<>(passedMap.keySet());
 	    List<Double> mapValues = new ArrayList<>(passedMap.values());
 	    Collections.sort(mapValues);
 	    Collections.sort(mapKeys);
 
-	    LinkedHashMap<Integer, Double> sortedMap =
+	    LinkedHashMap<String, Double> sortedMap =
 	        new LinkedHashMap<>();
 
 	    Iterator<Double> valueIt = mapValues.iterator();
 	    while (valueIt.hasNext()) {
 	    	Double val = valueIt.next();
-	        Iterator<Integer> keyIt = mapKeys.iterator();
+	        Iterator<String> keyIt = mapKeys.iterator();
 
 	        while (keyIt.hasNext()) {
-	            Integer key = keyIt.next();
+	        	String key = keyIt.next();
 	            Double comp1 = passedMap.get(key);
 	            Double comp2 = val;
 
@@ -81,17 +81,8 @@ public class Run {
 		
 		//************DIST/NEIGHBOURS************
 		for(Node n : nodes) {
-			ArrayList<Node> nodes_without_node = new ArrayList<Node>(nodes);
-			nodes_without_node.remove(n.myident);
-			n.generateNeighbours(nodes_without_node);
-			n.generateDist(nodes);
-			for(int i = 0;i<nodes.size();i++) {
-				if(n.myident == i) {
-					tab_dist[i][n.myident] = Double.POSITIVE_INFINITY;
-				}else {
-					tab_dist[i][n.myident] = n.dist.get(i);
-				}
-			}
+			n.generateNeighboursAndDist(nodes);
+			for(int i = 0;i<nodes.size();i++) tab_dist[i][n.myident] = n.dist.get(i);
 			System.out.println("Document "+n.myident+" : "+n.neighbours.size()+ " voisins.");
 		}
 		//***************************************
@@ -122,38 +113,30 @@ public class Run {
 		
 		//***************BETWEENESS/CLOSENESS**************
 		//init
-		HashMap<Integer,Double> betweeness = new HashMap<>();
-		HashMap<Integer,Double> closeness = new HashMap<>();
+		HashMap<String,Double> betweeness = new HashMap<>();
+		HashMap<String,Double> closeness = new HashMap<>();
 		for(int i = 0;i<nblivres;i++) {
-			betweeness.put(i,g.getBetweenness(i));
-			closeness.put(i,g.getCloseness(i));
+			System.out.println(i);
+			betweeness.put(g.all_nodes.get(i).title,g.getBetweenness(i));
+			closeness.put(g.all_nodes.get(i).title,g.getCloseness(i));
 		}
 		
 		//sort
-		LinkedHashMap<Integer,Double> betweeness_sorted = sortHashMapByValues(betweeness);
-		LinkedHashMap<Integer,Double> closeness_sorted = sortHashMapByValues(closeness);
+		LinkedHashMap<String,Double> betweeness_sorted = sortHashMapByValues(betweeness);
+		LinkedHashMap<String,Double> closeness_sorted = sortHashMapByValues(closeness);
 		
 		//affichage
 		System.out.println("**********************************************\n"
 				         + "******************BETWEENESS******************\n"
 				         + "**********************************************");
-		for(Entry<Integer, Double> entry : betweeness_sorted.entrySet()) {
-			if(entry.getKey()/10 == 0) {System.out.println("betweeness de  "+entry.getKey()+" : "+String.format("%.2f", entry.getValue()));
-			}else {
-				System.out.println("betweeness de "+entry.getKey()+" : "+String.format("%.2f", entry.getValue()));						
-			}
-
-		}
+		for(Entry<String, Double> entry : betweeness_sorted.entrySet())
+			System.out.println("betweeness de "+String.format("%.2f", entry.getValue())+" pour "+entry.getKey());
 		
 		System.out.println("**********************************************\n"
 						 + "******************CLOSENESS*******************\n"
 						 + "**********************************************");
-		for(Entry<Integer, Double> entry : closeness_sorted.entrySet()) {
-			if(entry.getKey()/10 == 0) {System.out.println("closeness de  "+entry.getKey()+" : "+String.format("%.2f", entry.getValue()));			
-			}else {
-				System.out.println("closeness de "+entry.getKey()+" : "+String.format("%.2f", entry.getValue()));						
-			}
-		}
+		for(Entry<String, Double> entry : closeness_sorted.entrySet())
+			System.out.println("closeness de "+String.format("%.2f", entry.getValue())+" pour "+entry.getKey());
 		//***************************************
 	}
 }
