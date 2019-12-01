@@ -58,7 +58,7 @@ public class Run {
 		//*****************FILES*****************
 		ArrayList<File> files = new ArrayList<File>();
 		for(int i = 0;i<nblivres;i++) {
-			File f = new File("src/online/livres/"+i+".txt");
+			File f = new File("livres/"+i+".txt");
 			files.add(f);
 		}
 		//***************************************
@@ -67,7 +67,7 @@ public class Run {
 		ArrayList<String> words_filter = new ArrayList<>();
 		String line;
 		try {
-			BufferedReader br = new BufferedReader(new FileReader("src/online/100.txt"));
+			BufferedReader br = new BufferedReader(new FileReader("100.txt"));
 			while((line = br.readLine()) != null) words_filter.add(line);
 			br.close();
 		}catch(FileNotFoundException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
@@ -116,7 +116,6 @@ public class Run {
 		HashMap<String,Double> betweeness = new HashMap<>();
 		HashMap<String,Double> closeness = new HashMap<>();
 		for(int i = 0;i<nblivres;i++) {
-			System.out.println(i);
 			betweeness.put(g.all_nodes.get(i).title,g.getBetweenness(i));
 			closeness.put(g.all_nodes.get(i).title,g.getCloseness(i));
 		}

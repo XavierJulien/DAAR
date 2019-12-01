@@ -1,0 +1,68 @@
+<project name="ProjetOnlineChoixA" default="compile" basedir=".">
+    <description>
+        The build file for Grep program
+    </description>
+  <!-- set global properties for this build -->
+
+  <property name="src" location="."/>
+  <property name="build" location="bin"/>
+  <property name="doc" location="doc"/>
+
+ <property name="nom1" value="Xavier"/>
+
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <echo>================ Compiling ================</echo>    
+    <javac debug="true" srcdir="${src}" destdir="${build}"  includeantruntime="false" >
+    </javac>
+  </target>
+
+  <target name="run" depends="compile"
+          description="run Local">
+    <echo>================ Runing Main App================</echo>        
+    <java classname="online.Run"  classpath="bin" fork="true">
+    </java>
+  </target>
+
+  <target name="dist" depends="init,clean"
+        description="Generer la distribution" >
+    <!-- tout mettre dans l'archive -->
+    <zip basedir="." destfile="../daar-projet-online-${nom1}.zip" />
+  </target>
+
+  <target name="clean"
+        description="clean up" >	
+        <echo>================ Removing build directory ================</echo>    
+      <delete dir="${build}"/>
+      <delete dir="${doc}"/>
+
+  </target>
+
+  <target name="doc"
+        description="clean up" >	
+
+    <mkdir dir="${doc}"/>
+        <echo>================ generate the documentation  ================</echo>    
+
+    <javadoc packagenames="*"
+            sourcepath="${src}"
+            destdir="${doc}"
+            author="true"
+            version="true"
+            use="true"
+            windowtitle="Xavier">
+    </javadoc>
+  </target>
+
+
+
+</project>
