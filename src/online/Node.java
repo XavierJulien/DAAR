@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 
 public class Node {
 	
@@ -23,7 +22,6 @@ public class Node {
 	protected HashMap<String, Integer> index;
 	
 	private static Double dist_temp = 0.0;
-	long timeElapsed = 0;
 	
 	
 	public Node(File f,ArrayList<String> words_filter) {
@@ -33,8 +31,6 @@ public class Node {
 	}
 	
 	public HashMap<String,Integer> getIndex(File document){
-		int nb_word = 0;
-		long startTime = System.nanoTime();
 		HashMap <String,Integer> index = new HashMap<>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(document));
@@ -43,7 +39,6 @@ public class Node {
 				if (line.startsWith("Title")) title = line.substring(7);
 				String[] line_split = line.split("[^A-Za-z]");
 				for(String word : line_split) {
-					nb_word++;
 					if(word.equals("")) continue;
 					word = word.toLowerCase();
 					if(index.containsKey(word)) {
@@ -55,9 +50,6 @@ public class Node {
 			}
 			br.close();
 		}catch(FileNotFoundException e) {e.printStackTrace();} catch (IOException e) {e.printStackTrace();}
-		long endTime = System.nanoTime();
-		timeElapsed = endTime - startTime;
-		System.out.println(title+" index size"+index.size()+"nb word"+nb_word+" time "+timeElapsed / 1000000);
 		return index;
 	}
 	
